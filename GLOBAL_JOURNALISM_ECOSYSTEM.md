@@ -105,15 +105,17 @@ Initial deliverables:
 
 Do not build this before the federation protocol and evidence record are stable.
 
-#### C. Journalism Commons Directory (proposed)
-**Purpose:** An opt-in, federated directory of independent newsrooms, journalists' collectives, community archives, research groups, and public-interest tools.
+#### C. Journalism Commons Registry Profile (proposed; likely an integration, not a new server)
+**Purpose:** A portable metadata profile for independent newsrooms, journalists' collectives, community archives, research groups, and public-interest tools.
 
 Initial deliverables:
 - Publisher-controlled profiles and contact methods.
 - Language, region, coverage, and accessibility metadata.
-- Verification status with transparent criteria.
+- Transparent, limited verification claims with expiry and revocation.
 - Exportable directory feeds and independent mirrors.
 - Clear separation between identity verification and editorial endorsement.
+
+First evaluate whether this can be implemented as a profile/collection within OpenFederation or another existing directory/federation system. Do not create a separate directory server unless a concrete interoperability or governance gap remains.
 
 No global credibility score, popularity leaderboard, or central authority over who counts as a journalist.
 
