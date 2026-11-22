@@ -192,6 +192,23 @@ class WitnessV1Tests(unittest.TestCase):
                 f["consistency_proof"], None,
             )
 
+    def test_key_transition_enforces_creation_time_boundaries(self):
+        f = self.fixture
+        valid = build_key_transition(
+            f["old_key_document"], f["new_key_document"],
+            self.old_private, self.new_private, "2026-11-22T00:01:59Z",
+        )
+        self.assertTrue(verify_key_transition(
+            valid, f["old_key_document"], f["new_key_document"]
+        ))
+
+        for invalid_time in ("2026-11-21T23:59:59Z", "2026-11-22T00:02:01Z"):
+            with self.assertRaisesRegex(ValueError, "must fall between"):
+                build_key_transition(
+                    f["old_key_document"], f["new_key_document"],
+                    self.old_private, self.new_private, invalid_time,
+                )
+
     def test_key_rotation_rejects_rollback_to_older_key(self):
         f = self.fixture
         with self.assertRaisesRegex(ValueError, "must fall between"):
@@ -257,6 +274,32 @@ class WitnessV1Tests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertFalse(result["conflict_detected"])
         self.assertIn("duplicate witness statement replay", " ".join(result["errors"]))
+
+    def test_conflict_bundle_applies_caller_revocation_policy_to_every_observation(self):
+        f = self.fixture
+        private, key_document = generate_witness_keypair(
+            "witness:revocation-policy-check", "2026-11-22T00:00:00Z"
+        )
+        fork_head = build_tree_head(
+            f["old_tree_head"]["log_id"], [b"revocation-policy-fork"],
+            "2026-11-22T00:01:00Z",
+        )
+        independent_statement = sign_witness_statement(
+            key_document, private, fork_head,
+            "2026-11-22T00:01:05Z", "revocation-policy-v1",
+        )
+        bundle = build_conflict_bundle([
+            {"statement": f["first_statement"], "key_document": f["old_key_document"],
+             "tree_head": f["old_tree_head"]},
+            {"statement": independent_statement, "key_document": key_document,
+             "tree_head": fork_head},
+        ])
+        result = verify_conflict_bundle(
+            bundle, revoked_key_ids={f["old_key_document"]["key_id"]}
+        )
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["conflict_detected"])
+        self.assertIn("revoked", " ".join(result["errors"]))
 
     def test_witness_schemas_validate_frozen_artifacts(self):
         schema_dir = Path(__file__).resolve().parents[1] / "schemas"

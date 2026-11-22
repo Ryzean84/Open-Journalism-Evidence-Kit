@@ -44,6 +44,8 @@ These properties do not establish real-world identity, independent administratio
 | Key rotation | Missing or invalid old/new dual signature | Reject transition |
 | Rotation timing | Transition outside linked observation interval | Reject |
 | Key rollback | Attempt a transition from a newer key document back to an older key document | Reject because transition time must fall within the old-to-new key creation interval |
+| Rotation boundaries | Transition time before old-key creation or after new-key creation | Reject; timestamps within the permitted interval validate |
+| Conflicting revocation policy | Conflict bundle includes an observation signed by a caller-revoked key | Mark the bundle invalid and do not report a conflict using invalid evidence |
 | Revocation | Statement signed by key in caller's revoked-key set | Reject |
 | Bundle structure | Missing required observation fields or extra fields | Reject bundle observation |
 | Mixed bundle | One valid and one invalid observation | Bundle invalid; do not present it as a clean conflict proof |
