@@ -22,7 +22,7 @@ Every cryptographic artifact carries an explicit protocol identifier. Verifiers 
 5. Do not treat v0.1 snapshot roots as v0.2 transparency-log roots. Migration uses explicit digest-reference entries in a new log.
 6. A successful parser or hash check does not imply source authenticity, completeness, trusted time, or truth.
 
-All v0.2 sequence indexes and tree sizes are bounded by the maximum interoperable JSON safe integer (2^53 - 1). Larger values require a future version with an explicit decimal-string representation.\n\n## Canonical JSON profile
+All v0.2 sequence indexes and tree sizes, and witness statement tree sizes, are bounded by the maximum interoperable JSON safe integer (2^53 - 1). Larger values require a future version with an explicit decimal-string representation.\n\n## Canonical JSON profile
 
 The current OJEK JSON profile is `ojek-json-v1`: UTF-8; object keys sorted by the implementation's Unicode ordering; compact separators; non-ASCII characters emitted directly; non-finite numeric constants rejected. Protocol objects restrict values to types and fields defined by their schemas. Implementations must reject duplicate JSON object members before validation. Cross-language vectors are normative.
 
