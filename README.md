@@ -36,7 +36,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 
 The first runnable component is available as an early v0.1 command-line tool. It creates a local metadata ledger, validates source observations, records a hash-chained event history, exports portable JSON packages, and verifies local integrity.
 
-See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. The separate [v0.2 transparency log guide](docs/OJEK_TRANSPARENCY_LOG_V0.2.md) documents ordered log entries, tree heads, consistency proofs, and CLI usage. The experimental [Merkle Checkpoints v0.1 guide](docs/MERKLE_CHECKPOINTS.md) documents checkpoint creation, verification, inclusion proofs, and their trust limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
+See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. The separate [v0.2 transparency log guide](docs/OJEK_TRANSPARENCY_LOG_V0.2.md) documents ordered log entries, tree heads, consistency proofs, and CLI usage. A [synthetic command-line example](examples/transparency-log-v0.2/README.md) is available. The experimental [Merkle Checkpoints v0.1 guide](docs/MERKLE_CHECKPOINTS.md) documents checkpoint creation, verification, inclusion proofs, and their trust limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
 
 ## The preservation model
 
