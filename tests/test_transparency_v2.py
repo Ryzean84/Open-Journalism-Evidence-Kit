@@ -1,5 +1,6 @@
 import contextlib
 import copy
+import hashlib
 import io
 import json
 import tempfile
@@ -143,7 +144,8 @@ class TransparencyV2Tests(unittest.TestCase):
         self.assertTrue(verify_tree_head(new_head))
         invalid_empty = build_tree_head("newsroom.example/log-1", [], "2026-11-22T00:00:00Z")
         invalid_empty["root_hash"] = "0" * 64
-        invalid_empty["tree_head_digest"] = "0" * 64
+        invalid_preimage = {key: value for key, value in invalid_empty.items() if key != "tree_head_digest"}
+        invalid_empty["tree_head_digest"] = hashlib.sha256(canonical_bytes(invalid_preimage)).hexdigest()
         self.assertFalse(verify_tree_head(invalid_empty))
         proof = generate_consistency_proof_v2(new_entries, 4)
         document = build_consistency_proof_document("newsroom.example/log-1", old_head, new_head, proof)
@@ -247,6 +249,18 @@ class TransparencyV2Tests(unittest.TestCase):
         invalid["unapproved"] = True
         validator = Draft202012Validator(schemas["entry"], format_checker=FormatChecker())
         self.assertTrue(list(validator.iter_errors(invalid)))
+
+    def test_synthetic_example_entries_are_valid_and_ordered(self):
+        example_path = Path(__file__).resolve().parents[1] / "examples" / "transparency-log-v0.2" / "entries.json"
+        example_entries = strict_json_loads(example_path.read_text(encoding="utf-8"))
+        self.assertIsInstance(example_entries, list)
+        encoded = [
+            entry_bytes(validate_log_entry(item, expected_log_id="example.newsroom.local/main", expected_index=index))
+            for index, item in enumerate(example_entries)
+        ]
+        head = build_tree_head("example.newsroom.local/main", encoded, "2026-11-22T00:05:00Z")
+        self.assertEqual(head["tree_size"], 2)
+        self.assertTrue(verify_tree_head(head))
 
 
 if __name__ == "__main__":
