@@ -20,7 +20,10 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Code of Conduct](CODE_OF_CONDUCT.md) — community expectations and reporting process.
 - [Security Policy](SECURITY.md) — private vulnerability reporting and deployment cautions.
 
-- [Architecture](ARCHITECTURE.md)\n- [Protocol Versioning and Compatibility](docs/PROTOCOL_VERSIONING.md)\n- [Operator Runbook](docs/OPERATOR_RUNBOOK.md)\n- [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
+- [Architecture](ARCHITECTURE.md)
+- [Protocol Versioning and Compatibility](docs/PROTOCOL_VERSIONING.md)
+- [Operator Runbook](docs/OPERATOR_RUNBOOK.md)
+- [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
 - [Global Rights and Law Atlas proposal](GLOBAL_RIGHTS_AND_LAW_ATLAS.md)
 - [Language and Accessibility Strategy](LANGUAGE_AND_ACCESSIBILITY.md)
