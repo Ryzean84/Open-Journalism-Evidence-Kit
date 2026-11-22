@@ -192,6 +192,14 @@ class WitnessV1Tests(unittest.TestCase):
                 f["consistency_proof"], None,
             )
 
+    def test_key_rotation_rejects_rollback_to_older_key(self):
+        f = self.fixture
+        with self.assertRaisesRegex(ValueError, "must fall between"):
+            build_key_transition(
+                f["new_key_document"], f["old_key_document"],
+                self.new_private, self.old_private, "2026-11-22T00:03:05Z",
+            )
+
     def test_rollback_and_same_size_fork_are_reported(self):
         f = self.fixture
         fork_head = build_tree_head(
@@ -236,6 +244,19 @@ class WitnessV1Tests(unittest.TestCase):
         result = verify_conflict_bundle(bundle)
         self.assertTrue(result["valid"], result["errors"])
         self.assertTrue(result["conflict_detected"])
+
+    def test_conflict_bundle_rejects_replayed_duplicate_statement(self):
+        f = self.fixture
+        observation = {
+            "statement": f["first_statement"],
+            "key_document": f["old_key_document"],
+            "tree_head": f["old_tree_head"],
+        }
+        bundle = build_conflict_bundle([observation, copy.deepcopy(observation)])
+        result = verify_conflict_bundle(bundle)
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["conflict_detected"])
+        self.assertIn("duplicate witness statement replay", " ".join(result["errors"]))
 
     def test_witness_schemas_validate_frozen_artifacts(self):
         schema_dir = Path(__file__).resolve().parents[1] / "schemas"
