@@ -174,7 +174,7 @@ def main(argv: list[str] | None = None) -> int:
                 ]
                 head = build_tree_head(args.log_id, normalized, args.issued_at)
                 destination = Path(args.output).expanduser()
-                atomic_write(destination, json.dumps(head, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n")
+                atomic_write(destination, json.dumps(head, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\n")
                 print(f"Created unsigned v0.2 tree head: {destination.resolve()}")
                 print(f"Tree size: {head['tree_size']}")
                 print(f"Root hash: {head['root_hash']}")
@@ -196,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
                 proof = generate_consistency_proof_v2(normalized, old_head.get("tree_size"))
                 document = build_consistency_proof_document(log_id, old_head, new_head, proof)
                 destination = Path(args.output).expanduser()
-                atomic_write(destination, json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n")
+                atomic_write(destination, json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\n")
                 print(f"Created consistency proof: {destination.resolve()}")
                 return 0
             if args.log_v2_command == "verify-consistency":
