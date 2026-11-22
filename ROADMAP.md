@@ -26,7 +26,7 @@ This roadmap describes proposed work, not implemented capabilities.
 - [ ] Checkpoint transparency page or static feed.
 - [x] Frozen SHA-256 Python reference test vectors for empty, one-, two-, and three-leaf trees (v0.1).
 - [x] Independent JavaScript verifier for canonicalization, leaf hashes, roots, and inclusion-proof vectors (Node.js 22; CI).
-- [x] v0.2 Merkle consistency-proof generator and verifier, unsigned tree heads, offline CLI, frozen vectors, and independent JavaScript reference checks (initial implementation; external review and production release gates remain).
+- [x] v0.2 Merkle consistency-proof generator and verifier, unsigned tree heads, offline CLI, strict JSON artifact parsing, frozen vectors, and independent JavaScript reference checks (initial implementation; external review and production release gates remain).
 
 ## Phase 3 — Federation
 - [ ] Node identity and capability manifest.
