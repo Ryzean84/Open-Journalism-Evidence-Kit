@@ -64,3 +64,27 @@ This project is intended to interoperate with the [Open Intelligence Fabric](htt
 We welcome contributions from journalists, archivists, librarians, translators, researchers, software developers, legal scholars, and communities worldwide. Participation should be open, documented, respectful, and safe for contributors and sources.
 
 Before implementation or deployment, read the rights, ethics, and security guidance. This project is not legal advice and cannot guarantee personal safety.
+
+
+## Global journalist field manual and reusable materials
+
+The repository now includes a draft field manual and practical templates intended for adaptation by local newsrooms and independent journalists worldwide:
+
+- [Global Journalist Field Manual](GLOBAL_JOURNALIST_FIELD_MANUAL.md)
+- [Investigation brief](templates/investigation-brief.md)
+- [Source register CSV](templates/source-register.csv)
+- [Claim-evidence matrix CSV](templates/claim-evidence-matrix.csv)
+- [Verification log](templates/verification-log.md)
+- [Journalist and source risk assessment](templates/risk-assessment.md)
+- [Pre-publication review checklist](templates/prepublication-review.md)
+- [AI-assisted research policy](AI_ASSISTED_RESEARCH_POLICY.md)
+
+### Decentralized ecosystem blueprints
+
+- [Federated Journalism Network](blueprints/FEDERATED_JOURNALISM_NETWORK.md)
+- [Open-Source Research Method](blueprints/OPEN_SOURCE_RESEARCH_METHOD.md)
+- [Public Records Request Playbook](blueprints/PUBLIC_RECORDS_REQUEST_PLAYBOOK.md)
+- [Independent Integrity Checkpoints](blueprints/INDEPENDENT_CHECKPOINTS.md)
+- [Distributed Public-Information Catalog](blueprints/PUBLIC_INFORMATION_CATALOG.md)
+
+These materials are proposals and working aids, not implemented federation, secure source intake, legal advice, or safety guarantees. Each jurisdiction must adapt the workflows to local law, language, risks, and editorial practice. Contributions from journalists and community organizations are needed to test and improve them.
