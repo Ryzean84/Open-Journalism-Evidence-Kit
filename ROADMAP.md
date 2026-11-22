@@ -12,11 +12,12 @@ This roadmap describes proposed work, not implemented capabilities.
 ## Phase 1 — Local evidence ledger
 - [x] Versioned JSON Schema for source observations.
 - [x] Add valid/invalid fixtures and automated JSON Schema validation in GitHub Actions.
-- [ ] Local-first CLI and portable storage.
-- [ ] Append-only event log.
-- [ ] Deterministic evidence package export.
-- [ ] Hash and verification commands.
-- [ ] Unit tests and sample fixtures.
+- [x] Local-first CLI and portable filesystem storage (v0.1).
+- [x] Append-only-by-application JSONL event log with hash chaining (v0.1).
+- [x] Deterministic JSON evidence package export (v0.1).
+- [x] Record digest and event-chain verification commands (v0.1).
+- [x] Unit tests for creation, validation, export determinism, and tamper detection (v0.1).
+- [ ] Signed checkpoints and independent witnesses (future phase; not implied by local hashes).
 
 ## Phase 2 — Daily integrity checkpoints
 - [ ] Merkle batch construction and proof verification.
