@@ -16,7 +16,6 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 from .transparency_v2 import (
     TransparencyLogError,
     canonical_bytes,
-    strict_json_loads,
     verify_consistency_proof_document,
     verify_tree_head,
 )
@@ -156,7 +155,14 @@ def build_key_transition(
         raise WitnessProtocolError("both witness key documents must be valid")
     if previous_key_document["witness_id"] != new_key_document["witness_id"]:
         raise WitnessProtocolError("key transition must preserve witness_id")
+    if previous_key_document["key_id"] == new_key_document["key_id"]:
+        raise WitnessProtocolError("key transition requires a different new key")
     _timestamp(created_at, "created_at")
+    transition_time = datetime.fromisoformat(created_at[:-1] + "+00:00")
+    previous_created = datetime.fromisoformat(previous_key_document["created_at"][:-1] + "+00:00")
+    new_created = datetime.fromisoformat(new_key_document["created_at"][:-1] + "+00:00")
+    if not previous_created <= transition_time <= new_created:
+        raise WitnessProtocolError("key transition time must fall between the old and new key creation assertions")
     document = {
         "protocol": TRANSITION_PROTOCOL,
         "witness_id": previous_key_document["witness_id"],
@@ -196,6 +202,13 @@ def verify_key_transition(
         if document["previous_key_id"] != previous_key_document["key_id"]:
             return False
         if document["new_key_id"] != new_key_document["key_id"]:
+            return False
+        if document["previous_key_id"] == document["new_key_id"]:
+            return False
+        transition_time = datetime.fromisoformat(document["created_at"][:-1] + "+00:00")
+        previous_created = datetime.fromisoformat(previous_key_document["created_at"][:-1] + "+00:00")
+        new_created = datetime.fromisoformat(new_key_document["created_at"][:-1] + "+00:00")
+        if not previous_created <= transition_time <= new_created:
             return False
         payload = _transition_payload(document)
         preimage = _TRANSITION_DOMAIN + canonical_bytes(payload)
@@ -440,6 +453,11 @@ def verify_witness_statement(
         if previous_key_document["key_id"] != key_document["key_id"]:
             if not verify_key_transition(key_transition, previous_key_document, key_document):
                 raise WitnessProtocolError("missing or invalid dual-signed key transition")
+            transition_time = datetime.fromisoformat(key_transition["created_at"][:-1] + "+00:00")
+            previous_observed = datetime.fromisoformat(previous_statement["observed_at"][:-1] + "+00:00")
+            current_observed = datetime.fromisoformat(statement["observed_at"][:-1] + "+00:00")
+            if not previous_observed <= transition_time <= current_observed:
+                raise WitnessProtocolError("key transition must occur between the linked observations")
             expected_transition_digest = hashlib.sha256(
                 _TRANSITION_DOMAIN + canonical_bytes(key_transition)
             ).hexdigest()
