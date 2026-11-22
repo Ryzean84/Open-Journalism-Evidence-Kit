@@ -4,13 +4,14 @@ This roadmap describes proposed work, not implemented capabilities.
 
 ## Phase 0 — Repository foundation
 - [x] Establish project repository.
-- [ ] Publish architecture and ethical preservation principles.
-- [ ] Select initial license after confirming compatibility and project goals.
-- [ ] Add contribution, security disclosure, and governance documents.
-- [ ] Define repository maturity and release policy.
+- [x] Publish architecture and ethical preservation principles.
+- [x] Select initial license (Apache-2.0; review compatibility before adding dependencies).
+- [x] Add contribution, security disclosure, code of conduct, and governance documents.
+- [x] Define repository maturity and release policy.
 
 ## Phase 1 — Local evidence ledger
-- [ ] Versioned JSON Schema for source observations.
+- [x] Versioned JSON Schema for source observations.
+- [x] Add valid/invalid fixtures and automated JSON Schema validation in GitHub Actions.
 - [ ] Local-first CLI and portable storage.
 - [ ] Append-only event log.
 - [ ] Deterministic evidence package export.
