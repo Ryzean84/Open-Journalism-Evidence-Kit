@@ -31,7 +31,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 
 The first runnable component is available as an early v0.1 command-line tool. It creates a local metadata ledger, validates source observations, records a hash-chained event history, exports portable JSON packages, and verifies local integrity.
 
-See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
+See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. The experimental [Merkle Checkpoints v0.1 guide](docs/MERKLE_CHECKPOINTS.md) documents checkpoint creation, verification, inclusion proofs, and their trust limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
 
 ## The preservation model
 
@@ -53,7 +53,7 @@ We do not automatically copy or republish full news articles. The default is to 
 
 ## Current maturity
 
-This repository is at the **foundational design stage**. These documents describe proposed architecture and policy; they do not claim that federation, daily checkpoints, translation infrastructure, or the legal atlas are implemented. See [Roadmap](ROADMAP.md) for implementation gates.
+The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint prototype is available on [PR #4](https://github.com/Ryzean84/Open-Journalism-Evidence-Kit/pull/4) for review and is not yet merged. Signed checkpoints, trusted timestamps, independent witnesses, federation, translation infrastructure, and the legal atlas remain future work. See [Roadmap](ROADMAP.md) for implementation gates.
 
 ## Relationship to Huffman Systems / Open Intelligence Fabric
 

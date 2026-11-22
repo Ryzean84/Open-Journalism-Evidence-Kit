@@ -35,13 +35,21 @@ permissions:
 jobs:
   schema-fixtures:
     runs-on: ubuntu-latest
+    env:
+      GIT_CONFIG_COUNT: 1
+      GIT_CONFIG_KEY_0: init.defaultBranch
+      GIT_CONFIG_VALUE_0: main
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Install test dependency
         run: python -m pip install -r requirements-dev.txt
       - name: Install project
@@ -52,3 +60,5 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_local_ledger.py' -v
       - name: Validate journalist templates
         run: python -m unittest discover -s tests -p 'test_templates.py' -v
+      - name: Test Merkle checkpoints
+        run: python -m unittest discover -s tests -p 'test_checkpoint*.py' -v
