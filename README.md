@@ -14,6 +14,8 @@ The project is designed for journalists, researchers, libraries, universities, c
 
 ## Foundational design documents
 
+- [Global Decentralized Journalism Ecosystem](GLOBAL_JOURNALISM_ECOSYSTEM.md) — ecosystem map, repository boundaries, participation tracks, and build sequence.
+
 - [Architecture](ARCHITECTURE.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
 - [Global Rights and Law Atlas proposal](GLOBAL_RIGHTS_AND_LAW_ATLAS.md)
