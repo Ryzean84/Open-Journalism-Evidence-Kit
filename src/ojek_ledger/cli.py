@@ -182,7 +182,7 @@ def main(argv: list[str] | None = None) -> int:
                         event["occurred_at"],
                     ))
                 destination = Path(args.output).expanduser()
-                payload = json.dumps(entries, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n"
+                payload = json.dumps(entries, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\n"
                 atomic_write(destination, payload)
                 print(f"Exported {len(entries)} verified ledger event reference(s): {destination.resolve()}")
                 print(f"Log ID: {node['node_id']}")
