@@ -1,6 +1,6 @@
 # OJEK Independent Witness Protocol — Architecture Proposal
 
-**Status: architecture proposal; not implemented.** This proposal depends on the separate v0.2 append-only transparency-log design and does not apply to v0.1 snapshot roots.
+**Status: architecture and threat-model document.** The initial offline Ed25519 reference implementation is specified in [WITNESS_PROTOCOL_V0.1.md](WITNESS_PROTOCOL_V0.1.md). It depends on the v0.2 append-only transparency log and does not apply to v0.1 snapshot roots.
 
 ## 1. Principles
 
