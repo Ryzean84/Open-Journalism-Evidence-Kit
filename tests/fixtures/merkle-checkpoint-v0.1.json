@@ -1,0 +1,67 @@
+{
+  "format": "ojek-merkle-test-vectors",
+  "protocol_version": "0.1.0",
+  "note": "Synthetic digest inputs. Leaf hashes commit to both record_id and record_digest using canonical JSON and domain separation.",
+  "cases": [
+    {
+      "name": "empty",
+      "records": [],
+      "leaf_hashes": [],
+      "expected_root": "e383f64294b33ea7b509363fb76052dbbb8a9d2c4088a9073767c2a4ca265fe3"
+    },
+    {
+      "name": "one-leaf",
+      "records": [
+        {
+          "record_id": "vector:one",
+          "record_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ],
+      "leaf_hashes": [
+        "a34d4faca1387ae75e69ebbcbd8911d407ec54f3440be03602f012d8e81c423b"
+      ],
+      "expected_root": "a34d4faca1387ae75e69ebbcbd8911d407ec54f3440be03602f012d8e81c423b"
+    },
+    {
+      "name": "two-leaf",
+      "records": [
+        {
+          "record_id": "vector:a",
+          "record_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "record_id": "vector:b",
+          "record_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ],
+      "leaf_hashes": [
+        "8c20d95e0fe717b2af6661bcb45c8ee7ed6dc659e6540401c075b7f02f3f9ef2",
+        "3a81673fb055c2479bc01e115679c201ebc3a228e88f058784d4bd9a577ffe24"
+      ],
+      "expected_root": "1862fe27c9b583eae7d75d3522012934234d8b298ca09b8b1b013b34c659cff8"
+    },
+    {
+      "name": "three-leaf-odd-duplication",
+      "records": [
+        {
+          "record_id": "vector:a",
+          "record_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "record_id": "vector:b",
+          "record_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "record_id": "vector:c",
+          "record_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "leaf_hashes": [
+        "8c20d95e0fe717b2af6661bcb45c8ee7ed6dc659e6540401c075b7f02f3f9ef2",
+        "3a81673fb055c2479bc01e115679c201ebc3a228e88f058784d4bd9a577ffe24",
+        "bb8362d285992e598a6fc7808735e09d235a60f4789ca3ff648388fdccaa638d"
+      ],
+      "expected_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424"
+    }
+  ]
+}

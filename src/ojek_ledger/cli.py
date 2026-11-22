@@ -7,7 +7,8 @@ import json
 import sys
 from pathlib import Path
 
-from .core import LedgerError, add_record, correct_record, export_package, init_workspace, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
+from .checkpoints import CheckpointError, build_checkpoint, create_inclusion_proof, verify_checkpoint, verify_inclusion_proof
+from .core import LedgerError, add_record, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
 
 
 def parser() -> argparse.ArgumentParser:
@@ -47,6 +48,18 @@ def parser() -> argparse.ArgumentParser:
     amend.add_argument("--url", help="Corrected canonical URL (correction only)")
     amend.add_argument("--title", help="Corrected source title (correction only)")
     amend.add_argument("--publisher", help="Corrected publisher (correction only)")
+    checkpoint = commands.add_parser("checkpoint", help="Create or verify an unsigned Merkle checkpoint")
+    checkpoint_commands = checkpoint.add_subparsers(dest="checkpoint_command", required=True)
+    checkpoint_create = checkpoint_commands.add_parser("create", help="Create a checkpoint from local record digests")
+    checkpoint_create.add_argument("--output", default="exports/checkpoint.json")
+    checkpoint_verify = checkpoint_commands.add_parser("verify", help="Verify a checkpoint JSON file")
+    checkpoint_verify.add_argument("checkpoint", help="Path to checkpoint JSON")
+    checkpoint_proof = checkpoint_commands.add_parser("proof", help="Create an inclusion proof")
+    checkpoint_proof.add_argument("checkpoint", help="Path to checkpoint JSON")
+    checkpoint_proof.add_argument("--record-id", required=True)
+    checkpoint_verify_proof = checkpoint_commands.add_parser("verify-proof", help="Verify a portable inclusion proof against a checkpoint")
+    checkpoint_verify_proof.add_argument("proof", help="Path to the inclusion proof JSON")
+    checkpoint_verify_proof.add_argument("checkpoint", help="Path to the checkpoint JSON")
     export = commands.add_parser("export", help="Export a deterministic JSON evidence package")
     export.add_argument("--output", default="exports/evidence-package.json")
     export.add_argument("--record-id", action="append", default=[], help="Limit export to this record ID; may be repeated")
@@ -71,7 +84,6 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.command == "list":
             paths, _ = require_workspace(workspace)
-            from .core import load_records
             records = load_records(paths)
             if not records:
                 print("No records yet.")
@@ -91,6 +103,45 @@ def main(argv: list[str] | None = None) -> int:
             result = verify_workspace(workspace)
             print(json.dumps(result, indent=2, ensure_ascii=False))
             return 0 if result["valid"] else 1
+        if args.command == "checkpoint":
+            if args.checkpoint_command == "create":
+                paths, _ = require_workspace(workspace)
+                from .core import atomic_write, canonical_bytes
+                ledger_result = verify_workspace(workspace)
+                if not ledger_result["valid"]:
+                    raise CheckpointError("local ledger verification failed: " + "; ".join(ledger_result["problems"]))
+                checkpoint_doc = build_checkpoint(load_records(paths))
+                destination = Path(args.output).expanduser()
+                if not destination.is_absolute():
+                    destination = paths["root"] / destination
+                atomic_write(destination, canonical_bytes(checkpoint_doc) + b"\n")
+                print(f"Created unsigned checkpoint: {destination.resolve()}")
+                print(f"Merkle root: {checkpoint_doc['merkle_root']}")
+                print("Warning: unsigned and unwitnessed; not proof of truth or completeness.")
+                return 0
+            if args.checkpoint_command == "verify":
+                checkpoint_doc = load_json(Path(args.checkpoint).expanduser())
+                result = verify_checkpoint(checkpoint_doc)
+                print(json.dumps(result, indent=2))
+                return 0 if result["valid"] else 1
+            if args.checkpoint_command == "proof":
+                checkpoint_doc = json.loads(Path(args.checkpoint).expanduser().read_text(encoding="utf-8"))
+                proof = create_inclusion_proof(checkpoint_doc, args.record_id)
+                print(json.dumps(proof, indent=2))
+                return 0
+            if args.checkpoint_command == "verify-proof":
+                proof = load_json(Path(args.proof).expanduser())
+                checkpoint_doc = load_json(Path(args.checkpoint).expanduser())
+                checkpoint_result = verify_checkpoint(checkpoint_doc)
+                if not checkpoint_result["valid"]:
+                    raise CheckpointError("checkpoint verification failed: " + "; ".join(checkpoint_result["problems"]))
+                valid = verify_inclusion_proof(
+                    proof,
+                    expected_root=checkpoint_doc["merkle_root"],
+                    expected_checkpoint_digest=checkpoint_doc["checkpoint_digest"],
+                )
+                print(json.dumps({"valid": valid, "record_id": proof.get("record_id") if isinstance(proof, dict) else None}, indent=2))
+                return 0 if valid else 1
         if args.command == "export":
             output = export_package(workspace, args.output, args.record_id or None)
             print(f"Exported evidence package: {output.resolve()}")
@@ -111,7 +162,7 @@ def main(argv: list[str] | None = None) -> int:
                 event = record_notice(workspace, args.record_id, "record." + args.type, args.reason)
                 print(f"Notice recorded: {event['event_id']} ({event['event_type']})")
             return 0
-    except LedgerError as exc:
+    except (LedgerError, CheckpointError, ValueError, OSError, json.JSONDecodeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
     return 2
