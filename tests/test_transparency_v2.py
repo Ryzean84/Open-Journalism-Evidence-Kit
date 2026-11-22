@@ -87,6 +87,7 @@ class TransparencyV2Tests(unittest.TestCase):
         empty = self.fixture["roots"][0]["root_hash"]
         one = self.fixture["roots"][1]["root_hash"]
         self.assertTrue(verify_consistency_proof_v2(0, 0, empty, empty, []))
+        self.assertFalse(verify_consistency_proof_v2(0, 0, empty, "0" * 64, []))
         self.assertTrue(verify_consistency_proof_v2(0, 1, empty, one, []))
         self.assertFalse(verify_consistency_proof_v2(0, 1, "0" * 64, one, []))
         self.assertTrue(verify_consistency_proof_v2(1, 1, one, one, []))
