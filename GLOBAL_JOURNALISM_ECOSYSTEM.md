@@ -72,19 +72,25 @@ Do not create all of these immediately. First prove the interfaces and boundarie
 
 ### Candidate new repositories
 
-#### A. Open Journalism Federation Protocol (proposed)
-**Purpose:** Define how independent journalism nodes exchange signed metadata, source observations, corrections, manifests, and permitted archive references.
+#### A. Open Journalism Federation Profile (proposed; specification first)
+**Purpose:** Define the journalism-specific records and safety rules that travel across existing federation systems—not another general-purpose identity or social-network protocol.
+
+Before creating a standalone repository, evaluate:
+- [W3C ActivityPub](https://www.w3.org/TR/activitypub/) for interoperable publication and server-to-server distribution.
+- [AT Protocol](https://atproto.com/) for portable identity, signed repositories, and feed-oriented distribution.
+- [OpenFederation PDS](https://github.com/athlon-misa/openfederation-pds) for community-owned identity, governance, portability, and its developing federation work.
+
+OpenFederation is an active pre-release project. Its public roadmap describes ActivityPub federation as coded but not yet validated against a live external network. Treat it as a potential collaborator or integration candidate, not as a production dependency or a project we should duplicate.
 
 Initial deliverables:
-- Protocol goals and threat model.
-- Node identity and signed capability manifest.
-- Versioned event envelope.
-- Subscription and replication manifest.
-- Opt-in replication, quotas, allowlists, and revocation.
-- Offline synchronization and conflict semantics.
-- Conformance fixtures and reference test vectors.
+- A protocol comparison and interoperability decision record.
+- OJEK evidence-object and correction-event mappings.
+- Rights, privacy, retention, and replication policy extensions.
+- Signed provenance and publisher-controlled attribution.
+- A minimal profile that can be carried over one existing protocol.
+- Conformance fixtures and two independent implementation tests.
 
-This should be the first candidate new repository, but only after the OIF and OJEK contracts are stable enough to avoid competing schemas.
+**Decision gate:** Do not create a new general federation protocol, identity layer, social graph, or community server unless a documented interoperability gap remains after testing existing standards and projects. A narrow journalism profile or adapter may be sufficient.
 
 #### B. Independent Archive Node (proposed)
 **Purpose:** A small, self-hostable implementation that libraries, newsrooms, universities, and community groups can run independently.
@@ -134,7 +140,22 @@ Initial deliverables:
 
 Before creating this repository, assess whether OJEK plus integrations with Atlos, Bellingcat tools, and existing document platforms already meet the need.
 
-## 5. Participation: the global work table
+## 5. Existing projects to learn from and participate in
+
+We should strengthen the wider ecosystem by contributing upstream, documenting integrations, and sharing standards where useful. These projects already solve meaningful parts of the problem:
+
+| Project | Existing capability | Our best relationship |
+|---|---|---|
+| [SecureDrop](https://github.com/freedomofpress/securedrop) | Secure newsroom intake for confidential source submissions | Learn from its threat model and integrate by reference; do not build an amateur substitute |
+| [Atlos](https://github.com/atlosdotorg/atlos) | Collaborative visual investigation and media verification | Explore evidence export/import and provenance interoperability |
+| [Bellingcat Auto Archiver](https://github.com/bellingcat/auto-archiver) | Preservation of public web and social-media evidence | Reuse or integrate where licensing and collection rules permit |
+| [OONI](https://ooni.org/get-involved/) | Community measurements and research on censorship and network interference | Contribute measurements, translations, analysis, and careful data integrations |
+| [OpenFederation PDS](https://github.com/athlon-misa/openfederation-pds) | Portable community identity, governance, and data ownership | Evaluate interoperability and offer a journalism-specific use case or adapter |
+| [W3C ActivityPub](https://www.w3.org/TR/activitypub/) | Standardized federated social publishing and delivery | Prefer standards-based publication over inventing a replacement |
+
+OONI explicitly welcomes code, test, research, translation, and community contributions. Atlos documents a purpose-built collaborative workflow for visual investigators. SecureDrop is mature source-intake infrastructure used by newsrooms. The right strategy is to contribute, interoperate, and fill demonstrated gaps—not compete by cloning mature projects.
+
+## 6. Participation: the global work table
 
 Participation must not be limited to software developers.
 
@@ -153,7 +174,7 @@ Participation must not be limited to software developers.
 | Node operators | Independent hosting, replication policy, backup, and uptime transparency |
 | Funders and institutions | Transparent, non-exclusive support without editorial control |
 
-## 6. Contribution tracks
+## 7. Contribution tracks
 
 Every contribution should have a clear path:
 
@@ -168,7 +189,7 @@ Every contribution should have a clear path:
 
 Recognition should reward careful review, useful corrections, translation quality, accessibility, maintenance, and community service—not volume, speed, political alignment, or popularity.
 
-## 7. Trust, safety, and editorial boundaries
+## 8. Trust, safety, and editorial boundaries
 
 - Preserve the distinction between source material, metadata, observation, inference, translation, commentary, and editorial conclusion.
 - Never treat a cryptographic hash, signature, or timestamp as proof that a claim is true.
@@ -181,7 +202,7 @@ Recognition should reward careful review, useful corrections, translation qualit
 - Require human review for consequential editorial or external actions.
 - Make funding, sponsorship, conflicts of interest, and governance changes transparent.
 
-## 8. Funding and governance
+## 9. Funding and governance
 
 The ecosystem should be able to survive without one sponsor. Explore:
 - Small recurring donations and public-interest grants.
@@ -192,7 +213,7 @@ The ecosystem should be able to survive without one sponsor. Explore:
 
 No funder should receive hidden editorial control. No token or speculative asset is required. A contribution record is not a financial instrument.
 
-## 9. Build order: practical sequence
+## 10. Build order: practical sequence
 
 ### Stage 1 — Make the existing foundation real
 - Complete schema validation and sample fixtures in OJEK.
@@ -219,7 +240,7 @@ No funder should receive hidden editorial control. No token or speculative asset
 - Expand by language and region through local maintainers.
 - Publish independent security, privacy, accessibility, and sustainability reviews.
 
-## 10. First 30 concrete tasks
+## 11. First 30 concrete tasks
 
 1. Add JSON Schema tests for OJEK source observations.
 2. Add valid and invalid example fixtures.
@@ -252,7 +273,7 @@ No funder should receive hidden editorial control. No token or speculative asset
 29. Publish a transparent funding and conflict-of-interest policy.
 30. Run an end-to-end tabletop exercise before any public deployment.
 
-## 11. Definition of meaningful progress
+## 12. Definition of meaningful progress
 
 Progress is not the number of repositories, commits, agents, or records collected. Progress is demonstrated when an independent local group can use the tools, retain control of its work, verify what it receives, correct mistakes, protect sources, and leave the network without losing its own records.
 
