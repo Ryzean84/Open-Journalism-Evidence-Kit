@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from ojek_ledger.checkpoints import (
     CheckpointError,
+    canonical_bytes,
     build_checkpoint,
     create_inclusion_proof,
     leaf_hash,
@@ -129,6 +130,18 @@ class CheckpointTests(unittest.TestCase):
             leaves = [leaf_hash(item["record_id"], item["record_digest"]) for item in case["records"]]
             self.assertEqual(leaves, case["leaf_hashes"], case["name"])
             self.assertEqual(merkle_root(leaves), case["expected_root"], case["name"])
+            if "canonical_json" in case:
+                self.assertEqual(canonical_bytes({
+                    "record_id": case["records"][0]["record_id"],
+                    "record_digest": case["records"][0]["record_digest"],
+                }).decode("utf-8"), case["canonical_json"], case["name"])
+            for proof in case.get("inclusion_proofs", []):
+                portable_proof = {
+                    "format": "ojek-merkle-inclusion-proof",
+                    "protocol_version": "0.1.0",
+                    **proof,
+                }
+                self.assertTrue(verify_inclusion_proof(portable_proof), case["name"])
 
     def test_record_identity_is_bound_into_leaf(self):
         digest = "a" * 64

@@ -19,6 +19,14 @@ A checkpoint contains a sorted manifest of record identifiers and existing SHA-2
 
 The hexadecimal domain prefixes above are the exact UTF-8 bytes of the ASCII labels followed by a single zero byte. Domain separation distinguishes leaves, internal nodes, and empty trees. Protocol changes require a new version and test vectors. In v0.1, the verifier requires the exact `clock_statement` value `operator_asserted_unwitnessed` and rejects unknown top-level fields; extensions require a versioned protocol update rather than silently changing verifier semantics.
 
+The frozen fixture at `tests/fixtures/merkle-checkpoint-v0.1.json` is the interoperability contract. It includes a Unicode identifier, canonical UTF-8 JSON bytes, leaf hashes, roots, and portable inclusion proofs. The Python test suite and the dependency-free JavaScript verifier at `tests/reference/verify_merkle_vectors.js` both consume the same fixture. Run the JavaScript verifier with Node.js 22 or later:
+
+```bash
+node tests/reference/verify_merkle_vectors.js
+```
+
+The JavaScript verifier is an independent implementation of the v0.1 leaf, parent, empty-tree, and inclusion-proof rules. It deliberately rejects lone UTF-16 surrogates rather than silently encoding invalid Unicode.
+
 ## Use
 
 ```bash

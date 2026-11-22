@@ -25,7 +25,7 @@ This roadmap describes proposed work, not implemented capabilities.
 - [ ] Independent witness protocol.
 - [ ] Checkpoint transparency page or static feed.
 - [x] Frozen SHA-256 Python reference test vectors for empty, one-, two-, and three-leaf trees (v0.1).
-- [ ] Cross-language independent implementation of canonicalization and cryptographic test vectors.
+- [x] Independent JavaScript verifier for canonicalization, leaf hashes, roots, and inclusion-proof vectors (Node.js 22; CI).
 - [ ] Merkle consistency proofs between checkpoint sizes.
 
 ## Phase 3 — Federation
