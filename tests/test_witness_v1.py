@@ -398,6 +398,47 @@ class WitnessV1Tests(unittest.TestCase):
                 self.assertEqual(result, 2)
                 self.assertIn("error:", output.getvalue())
 
+    def test_witness_bundle_cli_exit_codes_distinguish_agreement_conflict_and_invalid(self):
+        f = self.fixture
+        agreeing_bundle = build_conflict_bundle([
+            {"statement": f["first_statement"], "key_document": f["old_key_document"], "tree_head": f["old_tree_head"]},
+            {"statement": f["second_statement"], "key_document": f["new_key_document"], "tree_head": f["new_tree_head"],
+             "previous_statement": f["first_statement"], "previous_key_document": f["old_key_document"],
+             "previous_tree_head": f["old_tree_head"], "consistency_proof": f["consistency_proof"],
+             "key_transition": f["key_transition"]},
+        ])
+
+        fork_head = build_tree_head(
+            f["old_tree_head"]["log_id"], [b"cli-exit-code-fork"],
+            "2026-11-22T00:03:00Z",
+        )
+        other_private, other_key = generate_witness_keypair(
+            "witness:cli-independent", "2026-11-22T00:00:00Z"
+        )
+        other_statement = sign_witness_statement(
+            other_key, other_private, fork_head,
+            "2026-11-22T00:03:05Z", "cli-independent-policy-v1",
+        )
+        conflict_bundle = build_conflict_bundle([
+            {"statement": f["first_statement"], "key_document": f["old_key_document"], "tree_head": f["old_tree_head"]},
+            {"statement": other_statement, "key_document": other_key, "tree_head": fork_head},
+        ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cases = [
+                (agreeing_bundle, 0),
+                (conflict_bundle, 1),
+                ({"protocol": "unsupported", "observations": []}, 2),
+            ]
+            for index, (bundle, expected_code) in enumerate(cases):
+                path = root / f"bundle-{index}.json"
+                path.write_text(json.dumps(bundle), encoding="utf-8")
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                    result = main(["witness", "verify-bundle", str(path)])
+                self.assertEqual(result, expected_code, output.getvalue())
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
