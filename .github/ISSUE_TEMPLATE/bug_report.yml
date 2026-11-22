@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a reproducible defect without exposing sensitive source material.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include confidential source identities, private communications, credentials, personal data, or non-public evidence."
+  - type: input
+    id: version
+    attributes:
+      label: OJEK version or commit
+      placeholder: "commit SHA or package version"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Python, operating system, and relevant runtime versions.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and sanitized output
+    validations:
+      required: true
