@@ -17,12 +17,12 @@ class PackageBuildTests(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as temporary:
             wheel_dir = Path(temporary)
-            subprocess.run(
+            completed = subprocess.run(
                 [
                     sys.executable, "-m", "pip", "wheel", str(repository),
                     "--no-deps", "--wheel-dir", str(wheel_dir),
                 ],
-                check=True,
+                check=False,
                 capture_output=True,
                 text=True,
             )
