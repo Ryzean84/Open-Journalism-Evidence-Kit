@@ -10,6 +10,7 @@
     "observations": {
       "type": "array",
       "minItems": 2,
+      "maxItems": 128,
       "items": {
         "type": "object",
         "additionalProperties": false,
