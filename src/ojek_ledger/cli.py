@@ -11,7 +11,7 @@ from .checkpoints import CheckpointError, build_checkpoint, create_inclusion_pro
 from .transparency_v2 import (
     TransparencyLogError, build_consistency_proof_document, build_tree_head,
     entry_bytes, generate_consistency_proof_v2, strict_json_loads, validate_log_entry,
-    verify_consistency_proof_document,
+    verify_consistency_proof_document, verify_tree_head,
 )
 from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
 
@@ -77,6 +77,8 @@ def parser() -> argparse.ArgumentParser:
     log_proof.add_argument("old_head", help="Earlier tree-head JSON file")
     log_proof.add_argument("new_head", help="Later tree-head JSON file")
     log_proof.add_argument("--output", required=True)
+    log_verify_head = log_commands.add_parser("verify-head", help="Verify an unsigned v0.2 tree-head digest")
+    log_verify_head.add_argument("tree_head")
     log_verify = log_commands.add_parser("verify-consistency", help="Verify a proof against two tree heads")
     log_verify.add_argument("old_head")
     log_verify.add_argument("new_head")
@@ -199,6 +201,11 @@ def main(argv: list[str] | None = None) -> int:
                 atomic_write(destination, json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\n")
                 print(f"Created consistency proof: {destination.resolve()}")
                 return 0
+            if args.log_v2_command == "verify-head":
+                head = strict_json_loads(Path(args.tree_head).expanduser().read_text(encoding="utf-8"))
+                valid = verify_tree_head(head)
+                print(json.dumps({"valid": valid, "protocol": "ojek-transparency-log-v0.2"}, indent=2))
+                return 0 if valid else 1
             if args.log_v2_command == "verify-consistency":
                 old_head = load_json(Path(args.old_head).expanduser())
                 new_head = load_json(Path(args.new_head).expanduser())
