@@ -1,0 +1,40 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "fixture:source-observation-minimal-001",
+  "source": {
+    "canonical_url": "https://example.org/public-report",
+    "publisher": "Example Public Interest Archive",
+    "title": "Synthetic public report fixture",
+    "byline": null,
+    "published_at": null,
+    "updated_at": null,
+    "language": "en",
+    "media_type": "text/html"
+  },
+  "observed_at": "2026-11-22T12:00:00Z",
+  "collection": {
+    "method": "manual",
+    "node_id": "fixture-node-001",
+    "tool_name": null,
+    "tool_version": null,
+    "http_status": 200,
+    "notes": "Synthetic test data. No real source was collected."
+  },
+  "rights": {
+    "status": "link_only",
+    "license_name": null,
+    "license_url": null,
+    "permission_reference": null,
+    "full_content_storage_allowed": false,
+    "reviewed_at": null
+  },
+  "integrity": {
+    "representation": "metadata_record",
+    "algorithm": "sha-256",
+    "digest": "64e75e478118b9f3abbe1559fc57d2a98c1e907c31715d206a8bb485de60e3d6",
+    "byte_length": 45
+  },
+  "translation": null,
+  "supersedes": null,
+  "correction_status": "none_known"
+}
