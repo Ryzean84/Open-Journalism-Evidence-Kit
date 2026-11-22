@@ -1,4 +1,4 @@
-# OJEK Append-Only Transparency Log v0.2 — Design Proposal
+# OJEK Append-Only Transparency Log v0.2 — Specification and Reference Implementation
 
 **Status: experimental reference implementation; unsigned and not approved as a production release.** The v0.2 profile does not change or reinterpret v0.1 checkpoints.
 
@@ -103,7 +103,7 @@ ojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.jso
 
 ## 8. Required tests and interoperability
 
-Freeze vectors covering:
+Conformance coverage includes:
 
 - Empty-to-empty, empty-to-nonempty, and size-one-to-larger proofs.
 - Equal sizes with equal roots and equal sizes with unequal roots.
