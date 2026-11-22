@@ -8,6 +8,9 @@ on:
       - "src/**"
       - "pyproject.toml"
       - "docs/LOCAL_LEDGER.md"
+      - "templates/**"
+      - "blueprints/**"
+      - "*.md"
       - "requirements-dev.txt"
       - ".github/workflows/validate-source-observation.yml"
   pull_request:
@@ -42,3 +45,5 @@ jobs:
         run: python tests/test_source_observation_schema.py
       - name: Test local ledger
         run: python -m unittest discover -s tests -p 'test_local_ledger.py' -v
+      - name: Validate journalist templates
+        run: python -m unittest discover -s tests -p 'test_templates.py' -v
