@@ -31,7 +31,7 @@ This is a project-specific profile and is not a claim of RFC 8785/JCS compatibil
 ## Cryptographic algorithm policy
 
 - v0.1 uses its documented project-specific domain-separated SHA-256 construction with duplicate-last handling.
-- v0.2 uses the RFC 6962 history-tree shape with SHA-256 and the 0x00 leaf / 0x01 node prefixes.
+- v0.2 uses the RFC 9162 history-tree shape with SHA-256 and the 0x00 leaf / 0x01 node prefixes.
 - Hashes are represented as 64 lowercase hexadecimal characters.
 - Do not introduce algorithm agility without an explicit versioned algorithm identifier and independent vectors.
 
