@@ -46,7 +46,7 @@ v0.1 checkpoints are unsigned snapshots. Their digest detects changes relative t
 
 ## 4. v0.2 transparency artifacts
 
-The v0.2 commands operate on an ordered JSON array of validated log entries. They do not automatically import the local ledger or publish a log.
+The v0.2 commands operate on an ordered JSON array of validated log entries. The `import-ledger` command first verifies a local v0.1 workspace and emits one digest reference per event in its existing event order. It exports event hashes, the node identifier, sequence indexes, and operator-asserted event times—not source titles, URLs, article content, or confidential source identities. It does not publish a log or provide an external timestamp.
 
 ```bash
 ojek --workspace ./my-ledger log-v2 import-ledger --output entries.json
