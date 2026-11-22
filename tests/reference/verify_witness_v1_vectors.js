@@ -57,7 +57,9 @@ function verifyEd25519(publicKeyHex, message, signatureHex) {
 }
 function verifyTreeHead(head) {
   const keys = ["protocol", "log_id", "tree_size", "root_hash", "issued_at", "hash_algorithm", "tree_head_digest"];
-  if (!head || Object.keys(head).sort().join("|") !== keys.sort().join("|")) return false;
+  if (!head || typeof head !== "object" || Array.isArray(head) ||
+      Object.keys(head).sort().join("|") !== keys.sort().join("|") ||
+      !Number.isSafeInteger(head.tree_size) || head.tree_size < 0) return false;
   if (head.protocol !== "ojek-transparency-log-v0.2" || head.hash_algorithm !== "sha-256") return false;
   const preimage = {
     protocol: head.protocol, log_id: head.log_id, tree_size: head.tree_size,
@@ -67,6 +69,8 @@ function verifyTreeHead(head) {
 }
 function verifyConsistency(oldSize, newSize, oldRoot, newRoot, proof) {
   try {
+    if (!Number.isSafeInteger(oldSize) || !Number.isSafeInteger(newSize) ||
+        oldSize < 0 || newSize < oldSize || !Array.isArray(proof) || proof.length > 64) return false;
     const first = hex(oldRoot, 64);
     const second = hex(newRoot, 64);
     const nodes = proof.map((node) => hex(node, 64));
@@ -98,7 +102,11 @@ function verifyConsistency(oldSize, newSize, oldRoot, newRoot, proof) {
 }
 function verifyKeyDocument(doc) {
   try {
-    if (doc.protocol !== "ojek-witness-key-v0.1" || doc.signature_algorithm !== "ed25519") return false;
+    const keys = ["protocol", "witness_id", "key_id", "signature_algorithm", "public_key", "created_at"];
+    if (!doc || typeof doc !== "object" || Array.isArray(doc) ||
+        Object.keys(doc).sort().join("|") !== keys.sort().join("|") ||
+        typeof doc.witness_id !== "string" || typeof doc.created_at !== "string" ||
+        doc.protocol !== "ojek-witness-key-v0.1" || doc.signature_algorithm !== "ed25519") return false;
     const pub = hex(doc.public_key, 64);
     const keyId = sha256(Buffer.concat([Buffer.from("OJEK-WITNESS-KEY-v0.1\0"), pub])).toString("hex");
     return keyId === doc.key_id;
@@ -121,16 +129,27 @@ function proofDigest(proof) {
   ])).toString("hex");
 }
 function verifyStatement(statement, keyDoc, treeHead) {
-  if (!verifyKeyDocument(keyDoc) || !verifyTreeHead(treeHead)) return false;
-  if (statement.protocol !== "ojek-witness-statement-v0.1" || statement.signature_algorithm !== "ed25519" ||
-      statement.witness_id !== keyDoc.witness_id || statement.key_id !== keyDoc.key_id ||
-      statement.log_id !== treeHead.log_id || statement.tree_size !== treeHead.tree_size ||
-      statement.root_hash !== treeHead.root_hash || statement.tree_head_digest !== treeHead.tree_head_digest) return false;
-  const message = Buffer.concat([
-    Buffer.from("OJEK-WITNESS-STATEMENT-v0.1\0"),
-    Buffer.from(canonicalJson(statementPayload(statement)), "utf8"),
-  ]);
-  return verifyEd25519(keyDoc.public_key, message, statement.signature);
+  try {
+    const keys = [
+      "protocol", "witness_id", "key_id", "log_id", "tree_size", "root_hash",
+      "tree_head_digest", "observed_at", "previous_statement_digest", "consistency_status",
+      "consistency_from_tree_size", "consistency_proof_digest", "key_transition_digest",
+      "policy_id", "signature_algorithm", "signature",
+    ];
+    if (!statement || typeof statement !== "object" || Array.isArray(statement) ||
+        Object.keys(statement).sort().join("|") !== keys.sort().join("|") ||
+        !Number.isSafeInteger(statement.tree_size) || statement.tree_size < 0 ||
+        !verifyKeyDocument(keyDoc) || !verifyTreeHead(treeHead)) return false;
+    if (statement.protocol !== "ojek-witness-statement-v0.1" || statement.signature_algorithm !== "ed25519" ||
+        statement.witness_id !== keyDoc.witness_id || statement.key_id !== keyDoc.key_id ||
+        statement.log_id !== treeHead.log_id || statement.tree_size !== treeHead.tree_size ||
+        statement.root_hash !== treeHead.root_hash || statement.tree_head_digest !== treeHead.tree_head_digest) return false;
+    const message = Buffer.concat([
+      Buffer.from("OJEK-WITNESS-STATEMENT-v0.1\0"),
+      Buffer.from(canonicalJson(statementPayload(statement)), "utf8"),
+    ]);
+    return verifyEd25519(keyDoc.public_key, message, statement.signature);
+  } catch (_) { return false; }
 }
 
 assert.equal(fixture.format, "ojek-witness-v0.1-test-vectors");
@@ -170,4 +189,44 @@ assert.equal(sha256(Buffer.concat([
 const badStatement = structuredClone(fixture.second_statement);
 badStatement.signature = "0".repeat(128);
 assert.equal(verifyStatement(badStatement, fixture.new_key_document, fixture.new_tree_head), false);
-console.log("OJEK witness v0.1 JavaScript reference vectors: PASS");
+const changedCases = [
+  ["witness_id", "witness:attacker"],
+  ["key_id", "0".repeat(64)],
+  ["log_id", "attacker.example/log"],
+  ["tree_size", 1 << 53],
+  ["root_hash", "0".repeat(64)],
+];
+for (const [field, value] of changedCases) {
+  const changed = structuredClone(fixture.first_statement);
+  changed[field] = value;
+  assert.equal(verifyStatement(changed, fixture.old_key_document, fixture.old_tree_head), false, field);
+}
+const malformedSignature = structuredClone(fixture.first_statement);
+malformedSignature.signature = "not-a-signature";
+assert.equal(verifyStatement(malformedSignature, fixture.old_key_document, fixture.old_tree_head), false);
+const alteredHead = structuredClone(fixture.old_tree_head);
+alteredHead.root_hash = "0".repeat(64);
+assert.equal(verifyTreeHead(alteredHead), false);
+const wrongDomainMessage = Buffer.concat([
+  Buffer.from("OJEK-WITNESS-STATEMENT-v0.2\0"),
+  Buffer.from(canonicalJson(statementPayload(fixture.first_statement)), "utf8"),
+]);
+assert.equal(verifyEd25519(fixture.old_key_document.public_key, wrongDomainMessage, fixture.first_statement.signature), false);
+
+const proof = fixture.consistency_proof.proof;
+assert.equal(verifyConsistency(
+  fixture.consistency_proof.old_tree_size, fixture.consistency_proof.new_tree_size,
+  fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, proof.slice(0, -1),
+), false);
+assert.equal(verifyConsistency(
+  fixture.consistency_proof.old_tree_size, fixture.consistency_proof.new_tree_size,
+  fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, proof.concat(["0".repeat(64)]),
+), false);
+assert.equal(verifyConsistency(
+  fixture.consistency_proof.old_tree_size, fixture.consistency_proof.new_tree_size,
+  fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, ["z".repeat(64)],
+), false);
+assert.equal(verifyConsistency(-1, 1, fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, []), false);
+assert.equal(verifyConsistency(1, 1 << 53, fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, []), false);
+assert.equal(verifyConsistency(1, 1, fixture.consistency_proof.old_root, fixture.consistency_proof.new_root, Array(65).fill("0".repeat(64))), false);
+console.log("OJEK witness v0.1 JavaScript positive and negative reference vectors: PASS");

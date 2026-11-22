@@ -31,6 +31,7 @@ These properties do not establish real-world identity, independent administratio
 | Numeric bounds | Negative or greater-than-safe-integer tree size | Reject |
 | Nested values | Replace protocol scalar fields with arrays/objects or malformed nested observation members | Return an invalid result without an uncaught exception |
 | Digest encoding | Uppercase, short, non-hex, or malformed digest | Reject |
+| Cross-language negative vectors | Tampered witness/key/log bindings, altered tree heads, wrong signature domain, malformed proof nodes, invalid numeric bounds | Independent JavaScript reference rejects the same negative cases as Python |
 | Signature encoding | Wrong length, uppercase, or non-hex signature | Reject |
 | First observation | Include previous-chain fields or prior artifacts | Reject |
 | Continuity | Omit required prior statement, key, or tree head | Reject |
@@ -80,7 +81,7 @@ Exercise every validation branch in `witness_v1.py`, including malformed types, 
 Validate all frozen valid artifacts against their JSON Schemas. Mutate each artifact with unknown fields, missing required fields, invalid types, and boundary values. Confirm runtime validation and schema validation agree where the protocol requires them to.
 
 ### C. Cross-language vectors
-Keep Python and Node.js implementations aligned on canonicalization, digest preimages, signature verification, key transitions, and conflict classification. Add negative vectors, not only successful examples.
+Keep Python and Node.js implementations aligned on canonicalization, digest preimages, signature verification, key transitions, and conflict classification. The JavaScript witness reference exercises negative witness/key/log bindings, altered tree heads, wrong signature domain, malformed signatures/proofs, and invalid numeric/proof-size bounds. Continue adding negative cases where the reference implementation covers the same protocol behavior; do not imply full witness-protocol parity where it does not.
 
 ### D. CLI integration tests
 Exercise `ojek witness verify` and `ojek witness verify-bundle` with valid, invalid, missing, malformed, and adversarial files. Verify exit codes and output behavior.
