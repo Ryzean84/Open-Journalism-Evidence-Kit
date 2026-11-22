@@ -8,7 +8,12 @@ import sys
 from pathlib import Path
 
 from .checkpoints import CheckpointError, build_checkpoint, create_inclusion_proof, verify_checkpoint, verify_inclusion_proof
-from .core import LedgerError, add_record, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
+from .transparency_v2 import (
+    TransparencyLogError, build_consistency_proof_document, build_tree_head,
+    entry_bytes, generate_consistency_proof_v2, validate_log_entry,
+    verify_consistency_proof_document,
+)
+from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
 
 
 def parser() -> argparse.ArgumentParser:
@@ -60,6 +65,22 @@ def parser() -> argparse.ArgumentParser:
     checkpoint_verify_proof = checkpoint_commands.add_parser("verify-proof", help="Verify a portable inclusion proof against a checkpoint")
     checkpoint_verify_proof.add_argument("proof", help="Path to the inclusion proof JSON")
     checkpoint_verify_proof.add_argument("checkpoint", help="Path to the checkpoint JSON")
+    log_v2 = commands.add_parser("log-v2", help="Create and verify v0.2 append-only transparency log artifacts")
+    log_commands = log_v2.add_subparsers(dest="log_v2_command", required=True)
+    log_head = log_commands.add_parser("head", help="Build an unsigned v0.2 tree head from an ordered JSON entry array")
+    log_head.add_argument("entries", help="JSON file containing an array of v0.2 log entries")
+    log_head.add_argument("--log-id", required=True)
+    log_head.add_argument("--issued-at", required=True, help="RFC 3339 UTC timestamp ending in Z")
+    log_head.add_argument("--output", required=True)
+    log_proof = log_commands.add_parser("consistency-proof", help="Generate a proof between two v0.2 tree heads")
+    log_proof.add_argument("entries", help="JSON file containing the complete ordered entry array")
+    log_proof.add_argument("old_head", help="Earlier tree-head JSON file")
+    log_proof.add_argument("new_head", help="Later tree-head JSON file")
+    log_proof.add_argument("--output", required=True)
+    log_verify = log_commands.add_parser("verify-consistency", help="Verify a proof against two tree heads")
+    log_verify.add_argument("old_head")
+    log_verify.add_argument("new_head")
+    log_verify.add_argument("proof")
     export = commands.add_parser("export", help="Export a deterministic JSON evidence package")
     export.add_argument("--output", default="exports/evidence-package.json")
     export.add_argument("--record-id", action="append", default=[], help="Limit export to this record ID; may be repeated")
@@ -141,6 +162,49 @@ def main(argv: list[str] | None = None) -> int:
                     expected_checkpoint_digest=checkpoint_doc["checkpoint_digest"],
                 )
                 print(json.dumps({"valid": valid, "record_id": proof.get("record_id") if isinstance(proof, dict) else None}, indent=2))
+                return 0 if valid else 1
+        if args.command == "log-v2":
+            if args.log_v2_command == "head":
+                entries_value = load_json(Path(args.entries).expanduser())
+                if not isinstance(entries_value, list):
+                    raise TransparencyLogError("entries file must contain a JSON array")
+                normalized = [
+                    entry_bytes(validate_log_entry(item, expected_log_id=args.log_id, expected_index=index))
+                    for index, item in enumerate(entries_value)
+                ]
+                head = build_tree_head(args.log_id, normalized, args.issued_at)
+                destination = Path(args.output).expanduser()
+                atomic_write(destination, json.dumps(head, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n")
+                print(f"Created unsigned v0.2 tree head: {destination.resolve()}")
+                print(f"Tree size: {head['tree_size']}")
+                print(f"Root hash: {head['root_hash']}")
+                print("Warning: unsigned and unwitnessed; this does not establish trusted time or truth.")
+                return 0
+            if args.log_v2_command == "consistency-proof":
+                entries_value = load_json(Path(args.entries).expanduser())
+                old_head = load_json(Path(args.old_head).expanduser())
+                new_head = load_json(Path(args.new_head).expanduser())
+                if not isinstance(entries_value, list):
+                    raise TransparencyLogError("entries file must contain a JSON array")
+                log_id = old_head.get("log_id") if isinstance(old_head, dict) else None
+                normalized = [
+                    entry_bytes(validate_log_entry(item, expected_log_id=log_id, expected_index=index))
+                    for index, item in enumerate(entries_value)
+                ]
+                if not isinstance(old_head, dict) or not isinstance(new_head, dict):
+                    raise TransparencyLogError("old and new tree heads must be JSON objects")
+                proof = generate_consistency_proof_v2(normalized, old_head.get("tree_size"))
+                document = build_consistency_proof_document(log_id, old_head, new_head, proof)
+                destination = Path(args.output).expanduser()
+                atomic_write(destination, json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n")
+                print(f"Created consistency proof: {destination.resolve()}")
+                return 0
+            if args.log_v2_command == "verify-consistency":
+                old_head = load_json(Path(args.old_head).expanduser())
+                new_head = load_json(Path(args.new_head).expanduser())
+                proof = load_json(Path(args.proof).expanduser())
+                valid = verify_consistency_proof_document(old_head, new_head, proof)
+                print(json.dumps({"valid": valid, "protocol": "ojek-consistency-proof-v0.2"}, indent=2))
                 return 0 if valid else 1
         if args.command == "export":
             output = export_package(workspace, args.output, args.record_id or None)
