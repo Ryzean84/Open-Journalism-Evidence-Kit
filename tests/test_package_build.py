@@ -17,6 +17,7 @@ class PackageBuildTests(unittest.TestCase):
             "witness-key.v0.1.schema.json",
             "witness-statement.v0.1.schema.json",
             "witness-key-transition.v0.1.schema.json",
+            "witness-conflict-bundle.v0.1.schema.json",
         }
         with tempfile.TemporaryDirectory() as temporary:
             wheel_dir = Path(temporary)
