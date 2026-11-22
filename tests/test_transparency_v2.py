@@ -138,6 +138,10 @@ class TransparencyV2Tests(unittest.TestCase):
         invalid["created_at"] = "2026-11-22 00:00:00Z"
         with self.assertRaises(TransparencyLogError):
             validate_log_entry(invalid)
+        invalid = copy.deepcopy(entry)
+        invalid["payload_media_type"] = "application"
+        with self.assertRaises(TransparencyLogError):
+            validate_log_entry(invalid)
 
     def test_tree_head_digest_and_consistency_document_binding(self):
         old_entries = self.entries[:4]
