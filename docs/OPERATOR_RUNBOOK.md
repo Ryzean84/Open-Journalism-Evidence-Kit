@@ -75,12 +75,7 @@ Witness statements and conflict bundles can be checked offline. The verifier use
 
 ```bash
 ojek witness verify statement.json witness-key.json tree-head.json
-ojek witness verify statement.json witness-key.json tree-head.json \\
-  --previous-statement previous-statement.json \\
-  --previous-key previous-key.json \\
-  --previous-tree-head previous-tree-head.json \\
-  --consistency-proof consistency-proof.json \\
-  --key-transition key-transition.json
+ojek witness verify statement.json witness-key.json tree-head.json --previous-statement previous-statement.json --previous-key previous-key.json --previous-tree-head previous-tree-head.json --consistency-proof consistency-proof.json --key-transition key-transition.json
 ojek witness verify-bundle conflict-bundle.json
 ```
 
