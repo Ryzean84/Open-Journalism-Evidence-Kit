@@ -1,0 +1,57 @@
+# Roadmap
+
+This roadmap describes proposed work, not implemented capabilities.
+
+## Phase 0 — Repository foundation
+- [x] Establish project repository.
+- [ ] Publish architecture and ethical preservation principles.
+- [ ] Select initial license after confirming compatibility and project goals.
+- [ ] Add contribution, security disclosure, and governance documents.
+- [ ] Define repository maturity and release policy.
+
+## Phase 1 — Local evidence ledger
+- [ ] Versioned JSON Schema for source observations.
+- [ ] Local-first CLI and portable storage.
+- [ ] Append-only event log.
+- [ ] Deterministic evidence package export.
+- [ ] Hash and verification commands.
+- [ ] Unit tests and sample fixtures.
+
+## Phase 2 — Daily integrity checkpoints
+- [ ] Merkle batch construction and proof verification.
+- [ ] Signed checkpoint format and key rotation guidance.
+- [ ] Independent witness protocol.
+- [ ] Checkpoint transparency page or static feed.
+- [ ] Reproducible test vectors.
+
+## Phase 3 — Federation
+- [ ] Node identity and capability manifest.
+- [ ] Signed manifests and opt-in replication.
+- [ ] Explicit network allowlists, quotas, and rate limits.
+- [ ] Offline synchronization and conflict handling.
+- [ ] Node operator policy and abuse response.
+
+## Phase 4 — Global language and access
+- [ ] BCP 47 metadata and Unicode test suite.
+- [ ] Translation provenance and review workflow.
+- [ ] RTL and accessibility support.
+- [ ] Low-bandwidth and offline interfaces.
+- [ ] Community translation guidelines.
+
+## Phase 5 — Journalism workflows
+- [ ] Evidence notebook and source comparison.
+- [ ] Public records change tracking.
+- [ ] Citation and correction management.
+- [ ] Exportable investigation packages.
+- [ ] Editorial review and source-safety checks.
+
+## Phase 6 — Rights and law atlas
+- [ ] Separate repository and governance model.
+- [ ] U.S. founding documents from authoritative sources.
+- [ ] International human-rights instruments and treaty metadata.
+- [ ] Jurisdiction-by-jurisdiction official legal-source registry.
+- [ ] Version history, amendment and repeal tracking.
+- [ ] Expert-reviewed translation links.
+
+## Release gates
+No phase is considered complete because documentation exists. Each release requires implementation evidence, tests against the exact commit, documented limitations, rights review, and security review. Public deployment and replication remain opt-in.
