@@ -44,6 +44,26 @@ def canonical_bytes(value: Any) -> bytes:
         raise TransparencyLogError(f"value cannot be canonically encoded: {exc}") from exc
 
 
+
+def strict_json_loads(source: str) -> Any:
+    """Parse JSON while rejecting duplicate object members and non-JSON constants."""
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise TransparencyLogError(f"duplicate JSON object member: {key}")
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise TransparencyLogError(f"non-standard JSON constant is not permitted: {value}")
+
+    try:
+        return json.loads(source, object_pairs_hook=unique_object, parse_constant=reject_constant)
+    except json.JSONDecodeError as exc:
+        raise TransparencyLogError(f"invalid JSON: {exc}") from exc
+
+
 def _hash(data: bytes) -> bytes:
     return hashlib.sha256(data).digest()
 
@@ -61,7 +81,7 @@ def _log_id(value: Any) -> str:
 
 
 def _utc_timestamp(value: Any, field: str) -> str:
-    if not isinstance(value, str) or not value.endswith("Z"):
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value):
         raise TransparencyLogError(f"{field} must be an RFC 3339 UTC timestamp ending in Z")
     try:
         parsed = datetime.fromisoformat(value[:-1] + "+00:00")
