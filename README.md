@@ -21,6 +21,11 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Security Policy](SECURITY.md) — private vulnerability reporting and deployment cautions.
 
 - [Architecture](ARCHITECTURE.md)
+- [Protocol Versioning and Compatibility](docs/PROTOCOL_VERSIONING.md)
+- [Operator Runbook](docs/OPERATOR_RUNBOOK.md)
+- [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
+- [Release Readiness Checklist](docs/RELEASE_CHECKLIST.md)
+- [Changelog](CHANGELOG.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
 - [Global Rights and Law Atlas proposal](GLOBAL_RIGHTS_AND_LAW_ATLAS.md)
 - [Language and Accessibility Strategy](LANGUAGE_AND_ACCESSIBILITY.md)
@@ -31,7 +36,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 
 The first runnable component is available as an early v0.1 command-line tool. It creates a local metadata ledger, validates source observations, records a hash-chained event history, exports portable JSON packages, and verifies local integrity.
 
-See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. The experimental [Merkle Checkpoints v0.1 guide](docs/MERKLE_CHECKPOINTS.md) documents checkpoint creation, verification, inclusion proofs, and their trust limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
+See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. The separate [v0.2 transparency log guide](docs/OJEK_TRANSPARENCY_LOG_V0.2.md) documents ordered log entries, tree heads, consistency proofs, and CLI usage. A [synthetic command-line example](examples/transparency-log-v0.2/README.md) is available. The experimental [Merkle Checkpoints v0.1 guide](docs/MERKLE_CHECKPOINTS.md) documents checkpoint creation, verification, inclusion proofs, and their trust limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
 
 ## The preservation model
 
@@ -53,7 +58,7 @@ We do not automatically copy or republish full news articles. The default is to 
 
 ## Current maturity
 
-The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype has been merged into `main` and remains experimental. Checkpoints are operator-generated, unsigned, and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Merkle consistency proofs, signed checkpoints, trusted timestamps, independent witnesses, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
+The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype (v0.1) is experimental. A separate v0.2 append-only transparency-log implementation now provides RFC 9162-style Merkle roots, consistency-proof generation and verification, unsigned tree heads, and offline CLI verification. v0.1 snapshot rules remain unchanged. Both formats are unsigned and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Independent witnesses, signed tree heads, trusted timestamps, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
 
 ## Relationship to Huffman Systems / Open Intelligence Fabric
 

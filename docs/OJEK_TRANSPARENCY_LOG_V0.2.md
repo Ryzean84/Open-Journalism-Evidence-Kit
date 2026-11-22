@@ -1,18 +1,18 @@
-# OJEK Append-Only Transparency Log v0.2 — Design Proposal
+# OJEK Append-Only Transparency Log v0.2 — Specification and Reference Implementation
 
-**Status: design proposal; not implemented or approved as a release.** This proposal does not change or reinterpret v0.1 checkpoints.
+**Status: experimental reference implementation; unsigned and not approved as a production release.** The v0.2 profile does not change or reinterpret v0.1 checkpoints.
 
 ## 1. Why a new profile
 
-OJEK v0.1 is a snapshot tree with project-specific hash prefixes and duplicate-last handling for odd-width levels. Its rules and vectors are frozen. They are not the RFC 6962 history-tree construction. A consistency-proof verifier for v0.2 MUST NOT accept a v0.1 root.
+OJEK v0.1 is a snapshot tree with project-specific hash prefixes and duplicate-last handling for odd-width levels. Its rules and vectors are frozen. They are not the RFC 9162 history-tree construction. A consistency-proof verifier for v0.2 MUST NOT accept a v0.1 root.
 
 A snapshot manifest sorted anew at each checkpoint is not an append-only history: a later record could sort before an earlier record. v0.2 therefore defines a distinct ordered log sequence. Existing v0.1 checkpoints can be referenced by entries in that sequence.
 
 ## 2. Tree algorithm
 
-The proposed v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 6962, Sections 2.1 and 2.1.2, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
+The v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 9162, Sections 2.1.1 and 2.1.4, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
 
-Reference: [RFC 6962, Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962.html).
+Reference: [RFC 9162, Certificate Transparency Version 2.0](https://www.rfc-editor.org/rfc/rfc9162.html).
 
 For ordered byte strings D[0..n-1]:
 
@@ -33,12 +33,12 @@ Proposed v0.2 entry fields:
 - protocol: exact string ojek-transparency-log-v0.2
 - log_id: non-empty stable log identifier
 - leaf_index: non-negative integer assigned by the log
-- entry_type: registered lowercase token; initial values are record-reference, checkpoint-reference, and policy-change
+- entry_type: registered lowercase token; v0.2 defines record-reference, checkpoint-reference, policy-change, and ledger-event-reference. The latter commits to a verified local v0.1 ledger event hash without copying the event or source material.
 - payload_digest: 64-character lowercase SHA-256 digest
 - payload_media_type: non-empty media type
 - created_at: RFC 3339 UTC timestamp asserted by the operator, not trusted time
 
-The canonical UTF-8 bytes of this object under the existing project-specific ojek-json-v1 rules are the leaf input. A record-reference should normally commit to an existing OJEK record digest; a checkpoint-reference may commit to a v0.1 checkpoint digest. Payloads need not be copied into the public log. This keeps the log lightweight and avoids publishing source identities or private material.
+The canonical UTF-8 bytes of this object under the existing project-specific ojek-json-v1 rules are the leaf input. A record-reference should normally commit to an existing OJEK record digest; a checkpoint-reference may commit to a v0.1 checkpoint digest; a ledger-event-reference commits to a verified v0.1 event hash. Payloads need not be copied into the public log. This keeps the log lightweight and avoids publishing source identities or private material.
 
 Unknown fields and protocol identifiers MUST be rejected. Future extensions require a new version or an explicitly negotiated extension mechanism.
 
@@ -53,9 +53,9 @@ A v0.2 tree head contains:
 - issued_at: RFC 3339 UTC operator assertion
 - hash_algorithm: exact token sha-256
 
-The initial design profile is unsigned. Anyone able to replace a tree head can produce another valid unsigned tree head. A future signed profile must define an explicit version, signature algorithm, key identity, and exact signature preimage; signatures must not be bolted onto this format ambiguously.
+The initial design profile is unsigned. Anyone able to replace a tree head can produce another valid unsigned tree head. The CLI uses a strict JSON parser that rejects duplicate object members and non-standard constants to avoid ambiguous artifact interpretation. A future signed profile must define an explicit version, signature algorithm, key identity, and exact signature preimage; signatures must not be bolted onto this format ambiguously.
 
-The tree-head digest preimage and final field names MUST be frozen with test vectors before implementation.
+The v0.2 implementation freezes the tree-head digest preimage as SHA-256 over canonical UTF-8 JSON of exactly these six fields: `protocol`, `log_id`, `tree_size`, `root_hash`, `issued_at`, and `hash_algorithm`. The `tree_head_digest` field is excluded from its own preimage. The initial tree head is unsigned; no signature field is accepted. The wire format and preimage are covered by implementation tests.
 
 ## 5. Consistency proof semantics
 
@@ -64,14 +64,20 @@ For old tree size m and new tree size n:
 - Inputs MUST satisfy 0 <= m <= n.
 - m == n is consistent only when old and new roots are identical; the proof is empty.
 - m == 0 is consistent only when the old root is exactly the defined empty-tree root; the proof is empty because the empty sequence is a prefix of every sequence.
-- 0 < m < n uses the RFC 6962 PROOF/SUBPROOF construction.
+- 0 < m < n uses the RFC 9162 PROOF/SUBPROOF construction.
 - Proof nodes are ordered 32-byte hashes, serialized as lowercase hex.
 - Verification MUST consume the entire proof and reject missing, extra, malformed, or non-32-byte nodes.
 - Verification binds both sizes and both roots and fails if any are changed.
 
 A valid proof demonstrates that the old tree is the first m leaves of the new tree under this algorithm. It does not establish completeness, truth, authenticity, lawful collection, accurate time, or that all observers saw the same head.
 
-## 6. Implementation target
+## 6. Implementation status
+
+The repository contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 9162-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. The `ojek log-v2` CLI supports tree-head creation, consistency-proof generation, and offline proof verification. Frozen vectors are in `tests/fixtures/transparency-log-v0.2.json`, and an independent Node.js reference implementation checks the same roots and proofs.
+
+This is an experimental implementation milestone, not a production release. External protocol review, operational witness integration, signed tree heads, and deployment controls remain outstanding.
+
+## 7. Implementation API
 
 Proposed library API:
 
@@ -79,11 +85,28 @@ Proposed library API:
 - generate_consistency_proof_v2(entries, old_size) -> proof
 - verify_consistency_proof_v2(old_size, new_size, old_root, new_root, proof) -> bool
 
-CLI command names and JSON argument shapes must be finalized consistently during implementation. No placeholder command should be shipped.
+CLI examples (entry files are JSON arrays of ordered v0.2 entry objects):
 
-## 7. Required tests and interoperability
+```bash
+# Convert a verified local v0.1 ledger event chain into v0.2 event references
+ojek --workspace ./my-ledger log-v2 import-ledger --output entries.json
 
-Freeze vectors covering:
+# Build a tree head from the resulting ordered entries
+ojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json
+
+# Generate a proof from the full current entry sequence and two tree heads
+ojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json
+
+# Verify a tree head independently
+ojek log-v2 verify-head tree-head.json
+
+# Verify offline; exit status 0 means the supplied proof verifies
+ojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.json
+```
+
+## 8. Required tests and interoperability
+
+Conformance coverage includes:
 
 - Empty-to-empty, empty-to-nonempty, and size-one-to-larger proofs.
 - Equal sizes with equal roots and equal sizes with unequal roots.
@@ -95,19 +118,19 @@ Freeze vectors covering:
 - Forked histories with equal sizes but different roots.
 - Cross-language Python and JavaScript verification using the same fixture.
 
-Tests MUST compare against independently generated RFC 6962-compatible vectors or a second implementation, not merely round-trip the same code. Property-based tests SHOULD generate append sequences and verify every earlier prefix against every later prefix.
+Tests MUST compare against independently generated RFC 9162-compatible vectors or a second implementation, not merely round-trip the same code. Property-based tests SHOULD generate append sequences and verify every earlier prefix against every later prefix.
 
-## 8. Migration and compatibility
+## 9. Migration and compatibility
 
 - v0.1 verification remains unchanged and supported.
 - A v0.1 snapshot may be referenced by a v0.2 checkpoint-reference entry, but its root MUST NOT be treated as a v0.2 log root.
 - Migration means appending explicit references to old checkpoint digests in a new v0.2 log; it does not preserve the old root.
 - Consumers MUST dispatch by explicit protocol identifier and fail closed on unknown identifiers.
 
-## 9. Threat model and release gate
+## 10. Threat model and release gate
 
 Consistency proofs make it possible to detect a later root that cannot extend a previously observed prefix. They do not prevent an operator from maintaining two internally consistent forks and showing each to different clients. That requires independent witnesses and gossip.
 
 The operator can omit eligible entries, delay publication, or publish misleading references. Public entries can expose investigative patterns. Store minimal digests and non-sensitive metadata only.
 
-This proposal is not an implementation or security certification. Before implementation is accepted, maintainers must review the exact wire format, publish frozen vectors, validate against an independent implementation, and complete the tests above. Signing, key management, timestamp authorities, witnesses, and federation remain separate release gates.
+The current implementation is not a security certification. Before production release, maintainers must review the wire format, validate against independent implementations, expand adversarial tests, and complete the release gates above. Signing, key management, timestamp authorities, witnesses, and federation remain separate release gates.

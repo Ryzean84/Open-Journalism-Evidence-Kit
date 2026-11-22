@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ryzean84/Open-Journalism-Evidence-Kit/blob/main/schemas/transparency-consistency-proof.v0.2.schema.json",
+  "title": "OJEK Transparency Consistency Proof v0.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "log_id", "old_tree_size", "new_tree_size", "old_root", "new_root", "proof"],
+  "properties": {
+    "protocol": {"const": "ojek-consistency-proof-v0.2"},
+    "log_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
+    "old_tree_size": {"type": "integer", "minimum": 0},
+    "new_tree_size": {"type": "integer", "minimum": 0},
+    "old_root": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "new_root": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "proof": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+  }
+}

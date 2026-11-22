@@ -1,0 +1,20 @@
+[
+  {
+    "protocol": "ojek-transparency-log-v0.2",
+    "log_id": "example.newsroom.local/main",
+    "leaf_index": 0,
+    "entry_type": "record-reference",
+    "payload_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "payload_media_type": "application/vnd.ojek.record-digest+json",
+    "created_at": "2026-11-22T00:00:00Z"
+  },
+  {
+    "protocol": "ojek-transparency-log-v0.2",
+    "log_id": "example.newsroom.local/main",
+    "leaf_index": 1,
+    "entry_type": "checkpoint-reference",
+    "payload_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "payload_media_type": "application/vnd.ojek.checkpoint-digest+json",
+    "created_at": "2026-11-22T00:05:00Z"
+  }
+]

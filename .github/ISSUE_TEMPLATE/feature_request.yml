@@ -1,0 +1,38 @@
+name: Feature proposal
+description: Propose a focused, reviewable capability.
+title: "[Proposal]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and intended users
+      description: What concrete problem does this solve, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: threat_model
+    attributes:
+      label: Security, privacy, and rights considerations
+      description: Include misuse cases, sensitive data exposure, permissions, and legal/rights questions.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Protocol and compatibility impact
+      description: Does this change a published schema, canonicalization rule, hash algorithm, or artifact format?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
