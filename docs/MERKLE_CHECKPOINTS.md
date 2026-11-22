@@ -47,6 +47,6 @@ A proof is verified against a checkpoint's root and checkpoint digest. A user mu
 - Public manifests can reveal research activity. Never checkpoint confidential source identities, private communications, credentials, or sensitive investigative metadata.
 - This version creates, stores, and manages no private keys.
 
-## Next release gates
+## Relationship to v0.2\n\nThe v0.1 snapshot checkpoint format above is intentionally unchanged. The separate [v0.2 append-only transparency log](OJEK_TRANSPARENCY_LOG_V0.2.md) uses an RFC 6962-style history tree and consistency proofs. A v0.1 Merkle root MUST NOT be supplied as a v0.2 tree head. Migration requires explicit v0.2 reference entries and does not preserve the v0.1 root as a v0.2 root.\n\n## Next release gates
 
 Before signing or federation: publish cross-language test vectors; define Ed25519 key binding, rotation, expiry, revocation and recovery; add independently operated witness statements; define clock and witness policies; test adversarial proofs and canonicalization across implementations; and complete external security review.
