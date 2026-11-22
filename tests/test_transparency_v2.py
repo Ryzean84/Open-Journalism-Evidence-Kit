@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 from ojek_ledger.cli import main
 from ojek_ledger.transparency_v2 import (
     PROOF_PROTOCOL,
@@ -201,6 +203,34 @@ class TransparencyV2Tests(unittest.TestCase):
         with self.assertRaises(TransparencyLogError):
             strict_json_loads('{"root_hash":NaN}')
         self.assertEqual(strict_json_loads('{"a":1,"b":[true,null]}'), {"a": 1, "b": [True, None]})
+
+    def test_published_v02_json_schemas(self):
+        schema_dir = Path(__file__).resolve().parents[1] / "schemas"
+        schemas = {
+            "entry": json.loads((schema_dir / "transparency-log-entry.v0.2.schema.json").read_text(encoding="utf-8")),
+            "head": json.loads((schema_dir / "transparency-tree-head.v0.2.schema.json").read_text(encoding="utf-8")),
+            "proof": json.loads((schema_dir / "transparency-consistency-proof.v0.2.schema.json").read_text(encoding="utf-8")),
+        }
+        for schema in schemas.values():
+            Draft202012Validator.check_schema(schema)
+        entry = build_log_entry(
+            "newsroom.example/schema", 0, "record-reference", "a" * 64,
+            "application/vnd.ojek.record-digest+json", "2026-11-22T00:00:00Z",
+        )
+        entry_bytes_value = entry_bytes(entry)
+        head = build_tree_head("newsroom.example/schema", [entry_bytes_value], "2026-11-22T00:01:00Z")
+        empty_head = build_tree_head("newsroom.example/schema", [], "2026-11-22T00:00:00Z")
+        proof = build_consistency_proof_document(
+            "newsroom.example/schema", empty_head, head,
+            generate_consistency_proof_v2([entry_bytes_value], 0),
+        )
+        for name, value in (("entry", entry), ("head", head), ("proof", proof)):
+            validator = Draft202012Validator(schemas[name], format_checker=FormatChecker())
+            self.assertEqual(list(validator.iter_errors(value)), [], name)
+        invalid = copy.deepcopy(entry)
+        invalid["unapproved"] = True
+        validator = Draft202012Validator(schemas["entry"], format_checker=FormatChecker())
+        self.assertTrue(list(validator.iter_errors(invalid)))
 
 
 if __name__ == "__main__":
