@@ -16,7 +16,7 @@ from ojek_ledger.transparency_v2 import (
     entry_bytes,
     generate_consistency_proof_v2,
     merkle_root_v2,
-    validate_log_entry,
+    strict_json_loads,\n    validate_log_entry,
     verify_consistency_proof_document,
     verify_consistency_proof_v2,
     verify_tree_head,
@@ -117,7 +117,7 @@ class TransparencyV2Tests(unittest.TestCase):
         with self.assertRaises(TransparencyLogError):
             validate_log_entry(invalid)
         invalid = copy.deepcopy(entry)
-        invalid["created_at"] = "2026-11-22T00:00:00-07:00"
+        invalid["created_at"] = "2026-11-22 00:00:00Z"
         with self.assertRaises(TransparencyLogError):
             validate_log_entry(invalid)
 
@@ -193,6 +193,13 @@ class TransparencyV2Tests(unittest.TestCase):
             ])
             self.assertEqual(result, 0, output)
             self.assertIn('"valid": true', output)
+
+    def test_strict_json_rejects_duplicate_members_and_nonstandard_constants(self):
+        with self.assertRaises(TransparencyLogError):
+            strict_json_loads('{"tree_size":1,"tree_size":2}')
+        with self.assertRaises(TransparencyLogError):
+            strict_json_loads('{"root_hash":NaN}')
+        self.assertEqual(strict_json_loads('{"a":1,"b":[true,null]}'), {"a": 1, "b": [True, None]})
 
 
 if __name__ == "__main__":
