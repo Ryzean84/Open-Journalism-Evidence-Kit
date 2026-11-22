@@ -135,19 +135,19 @@ These notices document an operator's report; they do not independently establish
 Example correction:
 
 ~~~bash
-ojek --workspace ./my-ledger amend \\
-  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \\
-  --type correction \\
-  --reason "Publisher issued a corrected headline" \\
+ojek --workspace ./my-ledger amend \
+  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \
+  --type correction \
+  --reason "Publisher issued a corrected headline" \
   --title "Corrected public report title"
 ~~~
 
 Example dispute or withdrawal notice:
 
 ~~~bash
-ojek --workspace ./my-ledger amend \\
-  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \\
-  --type disputed \\
+ojek --workspace ./my-ledger amend \
+  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \
+  --type disputed \
   --reason "A cited primary source conflicts with this observation"
 ~~~
 
