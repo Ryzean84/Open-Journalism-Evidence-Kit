@@ -119,3 +119,46 @@ python -m unittest discover -s tests -p 'test_local_ledger.py' -v
 ## Current status
 
 This is an early v0.1 implementation. Review its code and security limitations before using it in real investigations. Back up the workspace. Do not rely on it as the only copy of important records.
+
+
+## Corrections and status notices
+
+The ledger supports append-only follow-up events:
+
+- A correction creates a new source-observation record with a `supersedes` link. The original record is retained unchanged.
+- A dispute appends a `record.disputed` event with the reason supplied by the operator.
+- A withdrawal appends a `record.withdrawn` event.
+- A restriction appends a `record.restricted` event.
+
+These notices document an operator's report; they do not independently establish that a claim is false, that a publisher has authenticated a correction, or that a legal takedown obligation exists. A restriction notice is not access-control enforcement and does not erase local copies or prior exports. Handle privacy, legal demands, and sensitive material through a separately designed and reviewed process.
+
+Example correction:
+
+~~~bash
+ojek --workspace ./my-ledger amend \\
+  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \\
+  --type correction \\
+  --reason "Publisher issued a corrected headline" \\
+  --title "Corrected public report title"
+~~~
+
+Example dispute or withdrawal notice:
+
+~~~bash
+ojek --workspace ./my-ledger amend \\
+  --record-id "urn:uuid:REPLACE-WITH-RECORD-ID" \\
+  --type disputed \\
+  --reason "A cited primary source conflicts with this observation"
+~~~
+
+## Independent package verification
+
+A recipient can verify an exported package without opening the original workspace:
+
+~~~bash
+ojek verify-package ./evidence-package.json
+~~~
+
+The verifier checks the package digest, each included record's schema and digest, the event hash chain, and whether each included record has a matching event in the included history. When an export intentionally contains only selected records, events for records omitted from that selection cannot be cross-checked against those omitted records. The event-chain integrity is still checked.
+
+Verification establishes consistency with the package's recorded hashes, not source truth, identity, completeness, or a trusted time of observation.
