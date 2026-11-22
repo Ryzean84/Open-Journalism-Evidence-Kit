@@ -136,7 +136,7 @@ function verifyConsistency(oldSize, newSize, oldRootHex, newRootHex, proofHex) {
 }
 
 assert.equal(fixture.format, "ojek-transparency-log-v0.2-test-vectors");
-assert.throws(() => canonicalJson("\\ud800"), /surrogate/);
+assert.throws(() => canonicalJson("\ud800"), /surrogate/);
 assert.equal(verifyConsistency(0, 0, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "0".repeat(64), []), false);
 const canonicalEntryBytes = Buffer.from(canonicalJson(fixture.canonical_entry), "utf8");
 assert.equal(canonicalEntryBytes.toString("utf8"), fixture.canonical_entry_bytes);
