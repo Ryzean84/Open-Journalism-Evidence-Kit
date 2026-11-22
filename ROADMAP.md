@@ -65,6 +65,7 @@ No phase is considered complete because documentation exists. Each release requi
 - [x] Draft federated journalism network architecture and node roles.
 - [x] Draft open-source research methodology and public-records request playbook.
 - [x] Draft independent checkpoint and distributed public-information catalog blueprints.
+- [x] Add a synthetic public-contract investigation exercise and regional adaptation kit.
 - [ ] Obtain review from working journalists, editors, archivists, security practitioners, translators, and regional legal experts.
 - [ ] Adapt materials with local partners in multiple legal systems and languages.
 - [ ] Publish synthetic training exercises and reproducible example investigations.
