@@ -439,6 +439,62 @@ class WitnessV1Tests(unittest.TestCase):
                     result = main(["witness", "verify-bundle", str(path)])
                 self.assertEqual(result, expected_code, output.getvalue())
 
+    def test_witness_cli_input_limits_bound_bytes_depth_and_utf8(self):
+        from ojek_ledger.cli import (
+            MAX_WITNESS_ARTIFACT_BYTES, MAX_WITNESS_JSON_DEPTH, _read_witness_json,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "artifact.json"
+            limit = MAX_WITNESS_ARTIFACT_BYTES["statement"]
+            exact = "{}" + (" " * (limit - 2))
+            path.write_bytes(exact.encode("utf-8"))
+            self.assertEqual(_read_witness_json(path, "statement"), {})
+
+            path.write_bytes((exact + " ").encode("utf-8"))
+            with self.assertRaisesRegex(ValueError, "exceeds the CLI size limit"):
+                _read_witness_json(path, "statement")
+
+            nested = ("[" * MAX_WITNESS_JSON_DEPTH) + "0" + ("]" * MAX_WITNESS_JSON_DEPTH)
+            path.write_text(nested, encoding="utf-8")
+            value = _read_witness_json(path, "statement")
+            for _ in range(MAX_WITNESS_JSON_DEPTH):
+                self.assertIsInstance(value, list)
+                value = value[0]
+            self.assertEqual(value, 0)
+
+            too_deep = "[" + nested + "]"
+            path.write_text(too_deep, encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "JSON nesting exceeds the CLI limit"):
+                _read_witness_json(path, "statement")
+
+            # Brackets inside a JSON string are data, not nesting delimiters.
+            path.write_text(json.dumps("[" * 256 + "{" * 256), encoding="utf-8")
+            self.assertEqual(len(_read_witness_json(path, "statement")), 512)
+
+            path.write_bytes(b"{\xff}")
+            with self.assertRaisesRegex(ValueError, "must be UTF-8 JSON"):
+                _read_witness_json(path, "statement")
+
+    def test_witness_cli_oversized_artifact_returns_stable_error_code(self):
+        from ojek_ledger.cli import MAX_WITNESS_ARTIFACT_BYTES
+
+        f = self.fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            statement_path = root / "statement.json"
+            key_path = root / "key.json"
+            head_path = root / "head.json"
+            statement_path.write_bytes(b" " * (MAX_WITNESS_ARTIFACT_BYTES["statement"] + 1))
+            key_path.write_text(json.dumps(f["old_key_document"]), encoding="utf-8")
+            head_path.write_text(json.dumps(f["old_tree_head"]), encoding="utf-8")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main(["witness", "verify", str(statement_path), str(key_path), str(head_path)])
+            self.assertEqual(result, 2)
+            self.assertIn("exceeds the CLI size limit", output.getvalue())
+            self.assertNotIn("Traceback", output.getvalue())
+
     def test_consistency_proof_node_limit_is_enforced_before_node_validation(self):
         from ojek_ledger.transparency_v2 import MAX_CONSISTENCY_PROOF_NODES, verify_consistency_proof_v2
 
