@@ -8,7 +8,7 @@ A checkpoint contains a sorted manifest of record identifiers and existing SHA-2
 
 ## Deterministic v0.1 rules
 
-- Canonical JSON: UTF-8, sorted object keys, compact separators, non-ASCII preserved, NaN and Infinity disallowed.
+- Canonical JSON: UTF-8, sorted object keys, compact separators, non-ASCII preserved, NaN and Infinity disallowed. This is the project-specific `ojek-json-v1` encoding, not a claim of RFC 8785/JCS compatibility; cross-language implementations must reproduce these exact rules and published vectors.
 - Leaf order: ascending Unicode code-point order of `record_id`; no Unicode normalization is performed.
 - Digest input: exactly 64 lowercase hexadecimal characters representing 32 bytes.
 - Leaf hash: SHA-256(`0x6f6a656b3a6c6561663a763100` || canonical UTF-8 JSON object containing both `record_id` and `record_digest`).
@@ -17,7 +17,7 @@ A checkpoint contains a sorted manifest of record identifiers and existing SHA-2
 - Empty tree root: SHA-256 of the bytes `0x6f6a656b3a656d7074793a763100`.
 - Checkpoint digest: SHA-256 of canonical checkpoint JSON before `checkpoint_digest` is added.
 
-The hexadecimal domain prefixes above are the exact UTF-8 bytes of the ASCII labels followed by a single zero byte. Domain separation distinguishes leaves, internal nodes, and empty trees. Protocol changes require a new version and test vectors.
+The hexadecimal domain prefixes above are the exact UTF-8 bytes of the ASCII labels followed by a single zero byte. Domain separation distinguishes leaves, internal nodes, and empty trees. Protocol changes require a new version and test vectors. In v0.1, the verifier requires the exact `clock_statement` value `operator_asserted_unwitnessed` and rejects unknown top-level fields; extensions require a versioned protocol update rather than silently changing verifier semantics.
 
 ## Use
 

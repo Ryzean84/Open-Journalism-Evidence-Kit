@@ -20,11 +20,13 @@ This roadmap describes proposed work, not implemented capabilities.
 - [ ] Signed checkpoints and independent witnesses (future phase; not implied by local hashes).
 
 ## Phase 2 — Daily integrity checkpoints
-- [x] Deterministic Merkle batch construction and inclusion-proof verification (experimental unsigned v0.1; PR #4).
+- [x] Deterministic Merkle batch construction and inclusion-proof verification (experimental unsigned v0.1; merged to `main`).
 - [ ] Signed checkpoint format and key rotation guidance.
 - [ ] Independent witness protocol.
 - [ ] Checkpoint transparency page or static feed.
-- [x] Frozen SHA-256 test vectors for empty, one-, two-, and three-leaf trees (v0.1).
+- [x] Frozen SHA-256 Python reference test vectors for empty, one-, two-, and three-leaf trees (v0.1).
+- [ ] Cross-language independent implementation of canonicalization and cryptographic test vectors.
+- [ ] Merkle consistency proofs between checkpoint sizes.
 
 ## Phase 3 — Federation
 - [ ] Node identity and capability manifest.
