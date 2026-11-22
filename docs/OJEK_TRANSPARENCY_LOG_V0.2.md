@@ -94,6 +94,9 @@ ojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11
 # Generate a proof from the full current entry sequence and two tree heads
 ojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json
 
+# Verify a tree head independently
+ojek log-v2 verify-head tree-head.json
+
 # Verify offline; exit status 0 means the supplied proof verifies
 ojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.json
 ```
