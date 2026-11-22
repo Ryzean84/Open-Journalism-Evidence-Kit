@@ -485,7 +485,7 @@ class WitnessV1Tests(unittest.TestCase):
             statement_path = root / "statement.json"
             key_path = root / "key.json"
             head_path = root / "head.json"
-            path.write_bytes(b"{\xff}")
+            statement_path.write_bytes(b" " * (MAX_WITNESS_ARTIFACT_BYTES["statement"] + 1))
             key_path.write_text(json.dumps(f["old_key_document"]), encoding="utf-8")
             head_path.write_text(json.dumps(f["old_tree_head"]), encoding="utf-8")
             output = io.StringIO()
