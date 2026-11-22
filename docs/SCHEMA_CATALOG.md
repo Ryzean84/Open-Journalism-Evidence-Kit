@@ -11,6 +11,7 @@ The JSON Schemas in this directory define machine-readable structural contracts.
 | [witness-key.v0.1](../schemas/witness-key.v0.1.schema.json) | Ed25519 witness public-key document | `verify_witness_key_document` |
 | [witness-statement.v0.1](../schemas/witness-statement.v0.1.schema.json) | Signed witness observation | `verify_witness_statement` |
 | [witness-key-transition.v0.1](../schemas/witness-key-transition.v0.1.schema.json) | Dual-signed key rotation | `verify_key_transition` |
+| [witness-conflict-bundle.v0.1](../schemas/witness-conflict-bundle.v0.1.schema.json) | Offline collection of signed observations | `verify_conflict_bundle` |
 
 ## Validation boundary
 
