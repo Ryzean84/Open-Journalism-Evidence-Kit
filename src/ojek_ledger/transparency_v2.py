@@ -18,6 +18,8 @@ PROOF_PROTOCOL = "ojek-consistency-proof-v0.2"
 TREE_ALGORITHM = "rfc9162-merkle-tree-sha256"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _MAX_SAFE_INTEGER = (1 << 53) - 1
+# A valid proof for safe-integer tree sizes needs at most 53 nodes; retain margin.
+MAX_CONSISTENCY_PROOF_NODES = 64
 _LOG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _MEDIA_TYPE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$")
 _ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change", "ledger-event-reference"}
@@ -213,7 +215,7 @@ def verify_consistency_proof_v2(
             return False
         first_hash = _hex_digest(old_root, "old_root")
         second_hash = _hex_digest(new_root, "new_root")
-        if not isinstance(proof, list):
+        if not isinstance(proof, list) or len(proof) > MAX_CONSISTENCY_PROOF_NODES:
             return False
         proof_nodes = [_hex_digest(item, "proof node") for item in proof]
         empty_root = _hash(b"")
