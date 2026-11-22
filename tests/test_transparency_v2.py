@@ -42,6 +42,9 @@ class TransparencyV2Tests(unittest.TestCase):
         self.assertEqual(encoded.decode("utf-8"), self.fixture["canonical_entry_bytes"])
         from ojek_ledger.transparency_v2 import leaf_hash_v2
         self.assertEqual(leaf_hash_v2(encoded).hex(), self.fixture["canonical_entry_leaf_hash"])
+        unicode_encoded = canonical_bytes(self.fixture["unicode_canonical_value"])
+        self.assertEqual(unicode_encoded.decode("utf-8"), self.fixture["unicode_canonical_bytes"])
+        self.assertEqual(leaf_hash_v2(unicode_encoded).hex(), self.fixture["unicode_leaf_hash"])
         head = build_tree_head("newsroom.example/main", [encoded], "2026-11-22T00:01:00Z")
         self.assertEqual(head["tree_head_digest"], self.fixture["tree_head_vector"]["tree_head_digest"])
         self.assertEqual(verify_tree_head(head), True)
