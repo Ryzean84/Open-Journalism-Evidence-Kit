@@ -40,7 +40,7 @@ The key document is not self-authenticating. A verifier must obtain the binding 
 
 ## 4. Witness statement
 
-The exact fields are defined by [witness-statement.v0.1.schema.json](../schemas/witness-statement.v0.1.schema.json). The signed statement binds:
+The exact fields are defined by [witness-statement.v0.1.schema.json](../schemas/witness-statement.v0.1.schema.json). Conflict bundles use [witness-conflict-bundle.v0.1.schema.json](../schemas/witness-conflict-bundle.v0.1.schema.json). The signed statement binds:
 
 - witness and key identifiers;
 - `log_id`, `tree_size`, `root_hash`, and `tree_head_digest` from one valid v0.2 tree head;
