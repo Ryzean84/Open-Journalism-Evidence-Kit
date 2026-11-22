@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ryzean84/Open-Journalism-Evidence-Kit/blob/main/schemas/source-observation.v0.1.schema.json",
+  "title": "OJEK Source Observation v0.1",
+  "description": "A metadata-first record that a node observed a public source at a particular time. It does not assert that the source is true or that full content may be republished.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "source",
+    "observed_at",
+    "collection",
+    "rights",
+    "integrity"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_url"
+      ],
+      "properties": {
+        "canonical_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "publisher": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        },
+        "byline": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "published_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "BCP 47 language tag, e.g. en, ar, pt-BR."
+        },
+        "media_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "node_id"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "manual",
+            "rss",
+            "atom",
+            "publisher_api",
+            "official_feed",
+            "public_dataset",
+            "sitemap",
+            "other"
+          ]
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "tool_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tool_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "http_status": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 100,
+          "maximum": 599
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unknown",
+            "link_only",
+            "open_license",
+            "public_domain_reviewed",
+            "permission_granted",
+            "restricted",
+            "not_assessed"
+          ]
+        },
+        "license_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "permission_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "full_content_storage_allowed": {
+          "type": "boolean",
+          "default": false
+        },
+        "reviewed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "representation",
+        "algorithm",
+        "digest"
+      ],
+      "properties": {
+        "representation": {
+          "enum": [
+            "metadata_record",
+            "response_bytes",
+            "normalized_text",
+            "authorized_archive_object"
+          ]
+        },
+        "algorithm": {
+          "const": "sha-256"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "byte_length": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "translation": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "source_language",
+        "target_language",
+        "method",
+        "review_status"
+      ],
+      "properties": {
+        "source_language": {
+          "type": "string"
+        },
+        "target_language": {
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "human",
+            "machine",
+            "machine_post_edited",
+            "community"
+          ]
+        },
+        "tool_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tool_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review_status": {
+          "enum": [
+            "unreviewed",
+            "community_reviewed",
+            "expert_reviewed",
+            "disputed"
+          ]
+        },
+        "reviewed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "correction_status": {
+      "enum": [
+        "none_known",
+        "correction_observed",
+        "disputed",
+        "withdrawn",
+        "restricted"
+      ]
+    }
+  }
+}
