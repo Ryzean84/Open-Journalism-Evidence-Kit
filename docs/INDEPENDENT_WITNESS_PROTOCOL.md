@@ -42,11 +42,12 @@ Canonical JSON fields:
 - consistency_status: verified, first_observation, failed, or unavailable
 - consistency_from_tree_size: prior size used for verification, or null
 - consistency_proof_digest: digest of proof artifact, or null
+- key_transition_digest: digest of the dual-signed key transition when the signing key changes, or null
 - policy_id: published witness policy identifier/version
 - signature_algorithm: exact token ed25519
 - signature: signature over the canonical statement preimage, excluding this field
 
-Canonicalization, signature preimage, public-key encoding, and key fingerprint rules MUST be frozen with cross-language vectors before implementation. Unknown fields and algorithms MUST be rejected unless a future version explicitly defines them.
+Canonicalization, signature preimage, public-key encoding, and key fingerprint rules are frozen in the experimental [Witness Protocol v0.1 specification](WITNESS_PROTOCOL_V0.1.md) and its cross-language vectors. Unknown fields and algorithms MUST be rejected unless a future version explicitly defines them.
 
 A witness may emit verified only after validating a v0.2 consistency proof from its stored prior head to the observed head. On first observation it emits first_observation; it cannot claim historical continuity it did not check. If proof retrieval or verification fails, it emits failed or unavailable, never verified.
 
@@ -74,12 +75,12 @@ Gossip may use HTTPS, email attachments, repository releases, or offline media. 
 
 ## 7. Key lifecycle requirements
 
-A separate key lifecycle specification is required before implementation:
+The reference implementation defines dual-signed key transitions and caller-supplied revocation policy. The following operational controls remain necessary before production deployment:
 
 - Generation: locally generated Ed25519 keys using a documented cryptographic library and secure randomness. Private keys remain under witness operator control.
 - Identity binding: publish a key fingerprint and out-of-band identity-binding statement. A witness name alone is not a key identity.
 - Rotation: old and new keys cross-sign a transition where possible; publish it through multiple channels and preserve old public keys.
-- Revocation: publish a signed revocation with reason category and effective-time assertion. Historical statements remain intact; verifiers apply a documented policy to statements around the compromise window.
+- Revocation: publish key fingerprints through multiple independent channels and provide the verifier with an explicit revoked-key set. v0.1 does not define a signed revocation artifact or universal revocation service. Historical statements remain intact; verifiers apply a documented policy around the compromise window.
 - Compromise: stop issuance under the compromised key, preserve evidence, publish revocation through independent channels, and require explicit recovery review.
 - Recovery: perform out-of-band identity checks and bind a new key. Never silently replace a public key under the same fingerprint.
 - Loss: a lost private key cannot be reconstructed. A new key may be established through recovery; identity continuity is a policy judgment.
@@ -98,14 +99,16 @@ Clients choose their own policy: minimum distinct operators, organizational/infr
 
 A verifier reports raw observations separately from its policy decision. A quorum is not proof that underlying evidence is true.
 
-## 10. Reference implementation\n\nThe experimental [Witness Protocol v0.1 specification](WITNESS_PROTOCOL_V0.1.md) freezes the Ed25519 signature preimages, key fingerprints, statement digest, dual-signed key transitions, revocation-policy input, and conflict-bundle semantics. The Python API and offline CLI verify supplied artifacts without network access. No hosted witness service, gossip transport, or peer discovery is implemented.\n\n## 11. Implementation gates
+## 10. Reference implementation
 
-1. Freeze the v0.2 tree-head and consistency-proof format.
-2. Freeze witness statement schema, canonicalization, signature preimage, and key fingerprint.
-3. Publish Python and JavaScript vectors for valid, invalid, rotated, revoked, and conflicting statements.
-4. Build an offline verifier before any hosted service.
-5. Demonstrate split-view detection with two intentionally forked test logs.
-6. Review privacy, key recovery, abuse resistance, and operational independence with external maintainers.
-7. Pilot with at least two independently operated witnesses before describing federation as available.
+The experimental [Witness Protocol v0.1 specification](WITNESS_PROTOCOL_V0.1.md) freezes the Ed25519 signature preimages, key fingerprints, statement digest, dual-signed key transitions, revocation-policy input, and conflict-bundle semantics. The Python API and offline CLI verify supplied artifacts without network access. No hosted witness service, gossip transport, or peer discovery is implemented.
+
+## 11. Remaining deployment gates
+
+1. Obtain independent cryptographic and protocol review of the v0.2 log and v0.1 witness formats.
+2. Review privacy, key recovery, abuse resistance, revocation operations, and witness independence with external maintainers.
+3. Demonstrate operation with at least two independently controlled witness operators.
+4. Add an opt-in, transport-neutral exchange/gossip workflow only after the offline verification and conflict-reporting semantics have been independently reviewed.
+5. Do not describe federation, trusted timestamps, or a hosted witness service as available until those capabilities are separately implemented and tested.
 
 This protocol is an accountability mechanism for log behavior, not a truth oracle, timestamp authority, or guarantee of source safety.
