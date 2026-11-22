@@ -8,6 +8,9 @@ The JSON Schemas in this directory define machine-readable structural contracts.
 | [transparency-log-entry.v0.2](../schemas/transparency-log-entry.v0.2.schema.json) | Ordered v0.2 log entry, including references to local ledger events | `validate_log_entry` |
 | [transparency-tree-head.v0.2](../schemas/transparency-tree-head.v0.2.schema.json) | Unsigned v0.2 tree head | `verify_tree_head` |
 | [transparency-consistency-proof.v0.2](../schemas/transparency-consistency-proof.v0.2.schema.json) | Proof between two tree heads | `verify_consistency_proof_document` |
+| [witness-key.v0.1](../schemas/witness-key.v0.1.schema.json) | Ed25519 witness public-key document | `verify_witness_key_document` |
+| [witness-statement.v0.1](../schemas/witness-statement.v0.1.schema.json) | Signed witness observation | `verify_witness_statement` |
+| [witness-key-transition.v0.1](../schemas/witness-key-transition.v0.1.schema.json) | Dual-signed key rotation | `verify_key_transition` |
 
 ## Validation boundary
 
