@@ -10,7 +10,7 @@ from pathlib import Path
 from .checkpoints import CheckpointError, build_checkpoint, create_inclusion_proof, verify_checkpoint, verify_inclusion_proof
 from .transparency_v2 import (
     TransparencyLogError, build_consistency_proof_document, build_tree_head,
-    entry_bytes, generate_consistency_proof_v2, validate_log_entry,
+    entry_bytes, generate_consistency_proof_v2, strict_json_loads, validate_log_entry,
     verify_consistency_proof_document,
 )
 from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
@@ -151,7 +151,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(proof, indent=2))
                 return 0
             if args.checkpoint_command == "verify-proof":
-                proof = load_json(Path(args.proof).expanduser())
+                proof = strict_json_loads(Path(args.proof).expanduser().read_text(encoding="utf-8"))
                 checkpoint_doc = load_json(Path(args.checkpoint).expanduser())
                 checkpoint_result = verify_checkpoint(checkpoint_doc)
                 if not checkpoint_result["valid"]:
@@ -165,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0 if valid else 1
         if args.command == "log-v2":
             if args.log_v2_command == "head":
-                entries_value = load_json(Path(args.entries).expanduser())
+                entries_value = strict_json_loads(Path(args.entries).expanduser().read_text(encoding="utf-8"))
                 if not isinstance(entries_value, list):
                     raise TransparencyLogError("entries file must contain a JSON array")
                 normalized = [
@@ -182,8 +182,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             if args.log_v2_command == "consistency-proof":
                 entries_value = load_json(Path(args.entries).expanduser())
-                old_head = load_json(Path(args.old_head).expanduser())
-                new_head = load_json(Path(args.new_head).expanduser())
+                old_head = strict_json_loads(Path(args.old_head).expanduser().read_text(encoding="utf-8"))
+                new_head = strict_json_loads(Path(args.new_head).expanduser().read_text(encoding="utf-8"))
                 if not isinstance(entries_value, list):
                     raise TransparencyLogError("entries file must contain a JSON array")
                 log_id = old_head.get("log_id") if isinstance(old_head, dict) else None
