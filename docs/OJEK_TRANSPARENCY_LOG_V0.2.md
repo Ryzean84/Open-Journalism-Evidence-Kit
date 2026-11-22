@@ -12,7 +12,7 @@ A snapshot manifest sorted anew at each checkpoint is not an append-only history
 
 The v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 9162, Sections 2.1.1 and 2.1.4, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
 
-Reference: [RFC 9162, Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962.html).
+Reference: [RFC 9162, Certificate Transparency Version 2.0](https://www.rfc-editor.org/rfc/rfc9162.html).
 
 For ordered byte strings D[0..n-1]:
 
