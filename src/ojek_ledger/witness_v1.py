@@ -358,6 +358,11 @@ def sign_witness_statement(
                 key_transition, previous_key_document, key_document
             ):
                 raise WitnessProtocolError("key rotation requires a valid dual-signed transition")
+            transition_time = datetime.fromisoformat(key_transition["created_at"][:-1] + "+00:00")
+            previous_observed = datetime.fromisoformat(previous_statement["observed_at"][:-1] + "+00:00")
+            current_observed = datetime.fromisoformat(observed_at[:-1] + "+00:00")
+            if not previous_observed <= transition_time <= current_observed:
+                raise WitnessProtocolError("key transition must occur between the linked observations")
             transition_digest = hashlib.sha256(
                 _TRANSITION_DOMAIN + canonical_bytes(key_transition)
             ).hexdigest()
