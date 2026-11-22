@@ -11,7 +11,7 @@
     "leaf_index": {"type": "integer", "minimum": 0},
     "entry_type": {"type": "string", "enum": ["record-reference", "checkpoint-reference", "policy-change"]},
     "payload_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "payload_media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+    "payload_media_type": {"type": "string", "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$"},
     "created_at": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"}
   }
 }
