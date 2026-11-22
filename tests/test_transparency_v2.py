@@ -10,6 +10,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 
 from ojek_ledger.cli import main
+from ojek_ledger.core import add_record, init_workspace
 from ojek_ledger.transparency_v2 import (
     PROOF_PROTOCOL,
     TransparencyLogError,
@@ -271,6 +272,33 @@ class TransparencyV2Tests(unittest.TestCase):
         head = build_tree_head("example.newsroom.local/main", encoded, "2026-11-22T00:05:00Z")
         self.assertEqual(head["tree_size"], 2)
         self.assertTrue(verify_tree_head(head))
+
+    def test_cli_imports_verified_local_ledger_as_ordered_event_references(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            workspace = root / "workspace"
+            init_workspace(workspace)
+            add_record(workspace, {
+                "url": "https://example.org/public-report",
+                "title": "Synthetic public report",
+                "publisher": "Example Publisher",
+                "language": "en",
+                "method": "manual",
+                "rights_status": "link_only",
+            })
+            output_path = root / "entries.json"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([
+                    "--workspace", str(workspace), "log-v2", "import-ledger",
+                    "--output", str(output_path),
+                ])
+            self.assertEqual(result, 0, output.getvalue())
+            entries = strict_json_loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]["leaf_index"], 0)
+            self.assertEqual(entries[0]["entry_type"], "ledger-event-reference")
+            self.assertEqual(entries[0]["log_id"], strict_json_loads((workspace / "node.json").read_text(encoding="utf-8"))["node_id"])
 
 
 if __name__ == "__main__":
