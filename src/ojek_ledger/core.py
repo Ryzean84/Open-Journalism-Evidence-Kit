@@ -171,7 +171,7 @@ def event_hash(event: dict[str, Any]) -> str:
     return sha256_hex(canonical_bytes(payload))
 
 
-def append_event(paths: dict[str, Path], event_type: str, record: dict[str, Any]) -> dict[str, Any]:
+def append_event(paths: dict[str, Path], event_type: str, record: dict[str, Any], details: dict[str, Any] | None = None) -> dict[str, Any]:
     events = read_events(paths["events"])
     previous = events[-1]["event_hash"] if events else None
     event = {
@@ -182,6 +182,8 @@ def append_event(paths: dict[str, Path], event_type: str, record: dict[str, Any]
         "record_digest": record["integrity"]["digest"],
         "previous_event_hash": previous,
     }
+    if details:
+        event["details"] = details
     event["event_hash"] = event_hash(event)
     with paths["events"].open("a", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(event, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
@@ -330,3 +332,127 @@ def export_package(workspace: str | Path, output: str | Path, record_ids: list[s
         destination = paths["root"] / destination
     atomic_write(destination, canonical_bytes(package) + b"\n")
     return destination
+
+
+def record_notice(
+    workspace: str | Path,
+    record_id: str,
+    notice_type: str,
+    reason: str | None = None,
+) -> dict[str, Any]:
+    """Append a dispute, withdrawal, or restriction notice without rewriting a record."""
+    allowed = {
+        "record.disputed",
+        "record.withdrawn",
+        "record.restricted",
+    }
+    if notice_type not in allowed:
+        raise LedgerError(f"Unsupported notice type: {notice_type}")
+    paths, _ = require_workspace(workspace)
+    records = {record.get("record_id"): record for record in load_records(paths)}
+    record = records.get(record_id)
+    if record is None:
+        raise LedgerError(f"Unknown record ID: {record_id}")
+    details = {"reason": reason} if reason else None
+    return append_event(paths, notice_type, record, details)
+
+
+def correct_record(
+    workspace: str | Path,
+    record_id: str,
+    reason: str,
+    source_updates: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Create a new observation linked to the prior record; never edit the prior record."""
+    paths, node = require_workspace(workspace)
+    records = {record.get("record_id"): record for record in load_records(paths)}
+    original = records.get(record_id)
+    if original is None:
+        raise LedgerError(f"Unknown record ID: {record_id}")
+    updated_source = dict(original.get("source", {}))
+    allowed_source_fields = {
+        "canonical_url", "publisher", "title", "byline",
+        "published_at", "updated_at", "language", "media_type",
+    }
+    for key, value in (source_updates or {}).items():
+        if key not in allowed_source_fields:
+            raise LedgerError(f"Unsupported source field: {key}")
+        updated_source[key] = value
+    successor = dict(original)
+    successor["record_id"] = "urn:uuid:" + str(uuid.uuid4())
+    successor["source"] = updated_source
+    successor["observed_at"] = utc_now()
+    successor["collection"] = dict(original.get("collection", {}))
+    successor["collection"]["node_id"] = node["node_id"]
+    successor["collection"]["notes"] = reason
+    successor["supersedes"] = record_id
+    successor["correction_status"] = "correction_observed"
+    successor = seal_record(successor)
+    errors = validate_record(successor)
+    if errors:
+        raise LedgerError("Corrected record failed schema validation:\\n- " + "\\n- ".join(errors))
+    record_path = paths["records"] / (successor["record_id"].removeprefix("urn:uuid:") + ".json")
+    atomic_write(record_path, canonical_bytes(successor) + b"\\n")
+    append_event(paths, "record.superseded", successor, {"supersedes": record_id, "reason": reason})
+    return successor
+
+
+def verify_package(package_path: str | Path) -> dict[str, Any]:
+    """Verify a portable evidence package without access to its originating workspace."""
+    package = load_json(Path(package_path))
+    problems: list[str] = []
+    if not isinstance(package, dict) or package.get("format") != "ojek-evidence-package":
+        raise LedgerError("Not an OJEK evidence package.")
+    expected_digest = package.get("package_digest")
+    payload = dict(package)
+    payload.pop("package_digest", None)
+    if expected_digest != sha256_hex(canonical_bytes(payload)):
+        problems.append("package digest mismatch")
+    records = package.get("records", [])
+    events = package.get("events", [])
+    if not isinstance(records, list) or not isinstance(events, list):
+        raise LedgerError("Package records and events must be arrays.")
+    record_by_id: dict[str, dict[str, Any]] = {}
+    for index, record in enumerate(records, start=1):
+        if not isinstance(record, dict):
+            problems.append(f"record {index}: not a JSON object")
+            continue
+        record_id = record.get("record_id")
+        if record_id in record_by_id:
+            problems.append(f"record {index}: duplicate record ID")
+        record_by_id[record_id] = record
+        for error in validate_record(record):
+            problems.append(f"{record_id}: schema: {error}")
+        if not verify_record_digest(record):
+            problems.append(f"{record_id}: record digest mismatch")
+    previous = None
+    seen_event_ids: set[str] = set()
+    matched_records: set[str] = set()
+    for index, event in enumerate(events, start=1):
+        if not isinstance(event, dict):
+            problems.append(f"event {index}: not a JSON object")
+            continue
+        event_id = event.get("event_id")
+        if event_id in seen_event_ids:
+            problems.append(f"event {index}: duplicate event ID")
+        seen_event_ids.add(event_id)
+        if event.get("previous_event_hash") != previous:
+            problems.append(f"event {index}: previous-event hash does not match chain")
+        if event.get("event_hash") != event_hash(event):
+            problems.append(f"event {index}: event hash mismatch")
+        event_record_id = event.get("record_id")
+        included = record_by_id.get(event_record_id)
+        if included is not None:
+            if event.get("record_digest") != included.get("integrity", {}).get("digest"):
+                problems.append(f"event {index}: record digest reference mismatch")
+            matched_records.add(event_record_id)
+        previous = event.get("event_hash")
+    for record_id in record_by_id:
+        if record_id not in matched_records:
+            problems.append(f"{record_id}: no matching event in package history")
+    return {
+        "valid": not problems,
+        "record_count": len(records),
+        "event_count": len(events),
+        "problems": problems,
+    }
