@@ -71,7 +71,13 @@ For old tree size m and new tree size n:
 
 A valid proof demonstrates that the old tree is the first m leaves of the new tree under this algorithm. It does not establish completeness, truth, authenticity, lawful collection, accurate time, or that all observers saw the same head.
 
-## 6. Implementation status\n\nThe repository now contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 6962-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. Frozen cross-language vectors are in `tests/fixtures/transparency-log-v0.2.json`. This is an initial implementation milestone, not a production release: independent review, CLI integration, additional adversarial testing, and operational witness integration remain required.\n\n## 7. Implementation target
+## 6. Implementation status
+
+The repository contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 6962-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. The `ojek log-v2` CLI supports tree-head creation, consistency-proof generation, and offline proof verification. Frozen vectors are in `tests/fixtures/transparency-log-v0.2.json`, and an independent Node.js reference implementation checks the same roots and proofs.
+
+This is an experimental implementation milestone, not a production release. External protocol review, operational witness integration, signed tree heads, and deployment controls remain outstanding.
+
+## 7. Implementation API
 
 Proposed library API:
 
@@ -79,7 +85,18 @@ Proposed library API:
 - generate_consistency_proof_v2(entries, old_size) -> proof
 - verify_consistency_proof_v2(old_size, new_size, old_root, new_root, proof) -> bool
 
-CLI examples (entry files are JSON arrays of ordered v0.2 entry objects):\n\n```bash\n# Build a tree head from entries.json\nojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json\n\n# Generate a proof from the full current entry sequence and two tree heads\nojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json\n\n# Verify offline; exit status 0 means the supplied proof verifies\nojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.json\n```
+CLI examples (entry files are JSON arrays of ordered v0.2 entry objects):
+
+```bash
+# Build a tree head from entries.json
+ojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json
+
+# Generate a proof from the full current entry sequence and two tree heads
+ojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json
+
+# Verify offline; exit status 0 means the supplied proof verifies
+ojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.json
+```
 
 ## 8. Required tests and interoperability
 
