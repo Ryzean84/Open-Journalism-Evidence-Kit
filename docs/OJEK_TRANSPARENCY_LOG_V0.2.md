@@ -63,7 +63,7 @@ For old tree size m and new tree size n:
 
 - Inputs MUST satisfy 0 <= m <= n.
 - m == n is consistent only when old and new roots are identical; the proof is empty.
-- m == 0 is valid only when the old root is exactly the defined empty-tree root.
+- m == 0 is consistent only when the old root is exactly the defined empty-tree root; the proof is empty because the empty sequence is a prefix of every sequence.
 - 0 < m < n uses the RFC 6962 PROOF/SUBPROOF construction.
 - Proof nodes are ordered 32-byte hashes, serialized as lowercase hex.
 - Verification MUST consume the entire proof and reject missing, extra, malformed, or non-32-byte nodes.
