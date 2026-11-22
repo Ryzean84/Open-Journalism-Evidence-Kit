@@ -57,3 +57,20 @@ This roadmap describes proposed work, not implemented capabilities.
 
 ## Release gates
 No phase is considered complete because documentation exists. Each release requires implementation evidence, tests against the exact commit, documented limitations, rights review, and security review. Public deployment and replication remain opt-in.
+
+
+## Phase 7 — Global journalist materials and field validation
+- [x] Draft global journalist field manual and core reporting templates (blueprint v0.1).
+- [x] Draft AI-assisted research and editorial accountability policy.
+- [x] Draft federated journalism network architecture and node roles.
+- [x] Draft open-source research methodology and public-records request playbook.
+- [x] Draft independent checkpoint and distributed public-information catalog blueprints.
+- [x] Add a synthetic public-contract investigation exercise and regional adaptation kit.
+- [ ] Obtain review from working journalists, editors, archivists, security practitioners, translators, and regional legal experts.
+- [ ] Adapt materials with local partners in multiple legal systems and languages.
+- [ ] Publish synthetic training exercises and reproducible example investigations.
+- [ ] Convert approved protocol proposals into versioned schemas and test vectors.
+- [ ] Run two independently operated pilot nodes before any general federation release.
+
+## Field-validation rule
+The new documents are drafts. A checkbox above records that a draft exists, not that the method has been validated in the field. Do not describe federation, secure source intake, signed checkpoints, or a global catalog as implemented until code, independent tests, operational review, and release gates are complete.
