@@ -9,7 +9,7 @@ description = "Local-first metadata ledger for the Open Journalism Evidence Kit"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
-dependencies = ["jsonschema>=4.23,<5"]
+dependencies = ["jsonschema>=4.23,<5", "cryptography>=44,<48"]
 
 [project.scripts]
 ojek = "ojek_ledger.cli:main"
@@ -23,4 +23,7 @@ where = ["src"]
   "schemas/transparency-log-entry.v0.2.schema.json",
   "schemas/transparency-tree-head.v0.2.schema.json",
   "schemas/transparency-consistency-proof.v0.2.schema.json",
+  "schemas/witness-key.v0.1.schema.json",
+  "schemas/witness-statement.v0.1.schema.json",
+  "schemas/witness-key-transition.v0.1.schema.json",
 ]
