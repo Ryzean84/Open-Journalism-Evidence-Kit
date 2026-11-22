@@ -31,6 +31,7 @@ _TRANSITION_DOMAIN = b"OJEK-WITNESS-KEY-TRANSITION-v0.1\x00"
 _PROOF_DIGEST_DOMAIN = b"OJEK-CONSISTENCY-PROOF-DIGEST-v0.2\x00"
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _HEX128 = re.compile(r"^[0-9a-f]{128}$")
+_MAX_SAFE_INTEGER = (1 << 53) - 1
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 _KEY_FIELDS = {"protocol", "witness_id", "key_id", "signature_algorithm", "public_key", "created_at"}
@@ -270,7 +271,7 @@ def _verify_signature_and_head(
     if revoked_key_ids and statement["key_id"] in revoked_key_ids:
         raise WitnessProtocolError("statement uses a key revoked by the verifier's policy")
     size = statement["tree_size"]
-    if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+    if isinstance(size, bool) or not isinstance(size, int) or size < 0 or size > _MAX_SAFE_INTEGER:
         raise WitnessProtocolError("tree_size must be a non-negative integer")
     _digest(statement["root_hash"], "root_hash")
     _digest(statement["tree_head_digest"], "tree_head_digest")
@@ -447,7 +448,7 @@ def verify_witness_statement(
             raise WitnessProtocolError("previous_statement_digest does not match supplied statement")
         prior_size = previous_tree_head["tree_size"]
         from_size = statement["consistency_from_tree_size"]
-        if isinstance(from_size, bool) or not isinstance(from_size, int) or from_size != prior_size:
+        if isinstance(from_size, bool) or not isinstance(from_size, int) or from_size < 0 or from_size > _MAX_SAFE_INTEGER or from_size != prior_size:
             raise WitnessProtocolError("consistency_from_tree_size does not match previous tree head")
 
         if previous_key_document["key_id"] != key_document["key_id"]:
