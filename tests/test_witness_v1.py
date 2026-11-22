@@ -1,3 +1,4 @@
+import base64
 import contextlib
 import copy
 import io
@@ -7,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
 from jsonschema import Draft202012Validator, FormatChecker
 
 from ojek_ledger.cli import main
@@ -512,6 +514,119 @@ class WitnessV1Tests(unittest.TestCase):
                     ])
                 self.assertEqual(result, 2)
                 self.assertIn("error:", output.getvalue())
+
+    def test_witness_cli_semantic_failures_have_stable_exit_code(self):
+        f = self.fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+
+            def write(name, value):
+                path = root / f"{name}.json"
+                path.write_text(json.dumps(value), encoding="utf-8")
+                return str(path)
+
+            def run_invalid(name, statement, key_document, tree_head, context=None, revoked_key_id=None):
+                args = [
+                    "witness", "verify",
+                    write(name + "-statement", statement),
+                    write(name + "-key", key_document),
+                    write(name + "-head", tree_head),
+                ]
+                if context is not None:
+                    args.extend([
+                        "--previous-statement", write(name + "-previous-statement", context["previous_statement"]),
+                        "--previous-key", write(name + "-previous-key", context["previous_key_document"]),
+                        "--previous-tree-head", write(name + "-previous-head", context["previous_tree_head"]),
+                        "--consistency-proof", write(name + "-proof", context["consistency_proof"]),
+                        "--key-transition", write(name + "-transition", context["key_transition"]),
+                    ])
+                if revoked_key_id is not None:
+                    args.extend(["--revoked-key-id", revoked_key_id])
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                    result = main(args)
+                self.assertEqual(result, 1, output.getvalue())
+                self.assertIn('"valid": false', output.getvalue())
+                self.assertNotIn("Traceback", output.getvalue())
+
+            bad_signature = copy.deepcopy(f["first_statement"])
+            bad_signature["signature"] = "0" * 128
+            run_invalid("bad-signature", bad_signature, f["old_key_document"], f["old_tree_head"])
+
+            bad_key = copy.deepcopy(f["old_key_document"])
+            bad_key["public_key"] = "not-a-public-key"
+            run_invalid("bad-key", f["first_statement"], bad_key, f["old_tree_head"])
+
+            bad_head = copy.deepcopy(f["old_tree_head"])
+            bad_head["root_hash"] = "0" * 64
+            run_invalid("bad-head", f["first_statement"], f["old_key_document"], bad_head)
+
+            run_invalid("missing-prior-context", f["second_statement"],
+                        f["new_key_document"], f["new_tree_head"])
+
+            context = {
+                "previous_statement": f["first_statement"],
+                "previous_key_document": f["old_key_document"],
+                "previous_tree_head": f["old_tree_head"],
+                "consistency_proof": f["consistency_proof"],
+                "key_transition": f["key_transition"],
+            }
+            bad_proof = copy.deepcopy(f["consistency_proof"])
+            bad_proof["new_root"] = "0" * 64
+            proof_context = {**context, "consistency_proof": bad_proof}
+            run_invalid("bad-proof", f["second_statement"], f["new_key_document"],
+                        f["new_tree_head"], proof_context)
+
+            bad_transition = copy.deepcopy(f["key_transition"])
+            bad_transition["new_key_signature"] = "0" * 128
+            transition_context = {**context, "key_transition": bad_transition}
+            run_invalid("bad-transition", f["second_statement"], f["new_key_document"],
+                        f["new_tree_head"], transition_context)
+
+            run_invalid("revoked-key", f["first_statement"], f["old_key_document"],
+                        f["old_tree_head"], revoked_key_id=f["old_key_document"]["key_id"])
+
+    def test_private_key_material_is_not_emitted_or_serialized(self):
+        f = self.fixture
+        private_bytes = self.old_private.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
+        private_encodings = (private_bytes.hex(), base64.b64encode(private_bytes).decode("ascii"))
+        public_document = json.dumps(f["old_key_document"], sort_keys=True)
+        self.assertNotIn("private_key", f["old_key_document"])
+        for encoded in private_encodings:
+            self.assertNotIn(encoded, public_document)
+
+        bundle = build_conflict_bundle([{
+            "statement": f["first_statement"],
+            "key_document": f["old_key_document"],
+            "tree_head": f["old_tree_head"],
+        }, {
+            "statement": f["second_statement"],
+            "key_document": f["new_key_document"],
+            "tree_head": f["new_tree_head"],
+            "previous_statement": f["first_statement"],
+            "previous_key_document": f["old_key_document"],
+            "previous_tree_head": f["old_tree_head"],
+            "consistency_proof": f["consistency_proof"],
+            "key_transition": f["key_transition"],
+        }])
+        bundle_text = json.dumps(bundle, sort_keys=True)
+        for encoded in private_encodings:
+            self.assertNotIn(encoded, bundle_text)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            statement_path = root / "statement.json"
+            key_path = root / "key.json"
+            head_path = root / "head.json"
+            statement_path.write_text(json.dumps(f["first_statement"]), encoding="utf-8")
+            key_path.write_text(json.dumps(f["old_key_document"]), encoding="utf-8")
+            head_path.write_text(json.dumps(f["old_tree_head"]), encoding="utf-8")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main(["witness", "verify", str(statement_path), str(key_path), str(head_path)])
+            self.assertEqual(result, 0, output.getvalue())
+            for encoded in private_encodings:
+                self.assertNotIn(encoded, output.getvalue())
 
     def test_witness_bundle_cli_exit_codes_distinguish_agreement_conflict_and_invalid(self):
         f = self.fixture
