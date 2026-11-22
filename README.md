@@ -24,6 +24,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Protocol Versioning and Compatibility](docs/PROTOCOL_VERSIONING.md)
 - [Operator Runbook](docs/OPERATOR_RUNBOOK.md)
 - [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
+- [Witness Protocol v0.1](docs/WITNESS_PROTOCOL_V0.1.md)
 - [Release Readiness Checklist](docs/RELEASE_CHECKLIST.md)
 - [Changelog](CHANGELOG.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
