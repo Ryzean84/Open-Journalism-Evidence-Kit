@@ -257,6 +257,69 @@ class WitnessV1Tests(unittest.TestCase):
                 result = main(["witness", "verify-bundle", str(bundle_path)])
             self.assertEqual(result, 0, output.getvalue())
 
+    def test_runtime_verifier_rejects_unknown_fields_and_type_confusion(self):
+        f = self.fixture
+
+        unknown_statement = copy.deepcopy(f["first_statement"])
+        unknown_statement["unrecognized_field"] = "reject"
+        result = verify_witness_statement(
+            unknown_statement, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        boolean_tree_size = copy.deepcopy(f["first_statement"])
+        boolean_tree_size["tree_size"] = True
+        result = verify_witness_statement(
+            boolean_tree_size, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        unknown_key_field = copy.deepcopy(f["old_key_document"])
+        unknown_key_field["unrecognized_field"] = "reject"
+        self.assertFalse(verify_witness_key_document(unknown_key_field))
+
+        mismatched_key_id = copy.deepcopy(f["old_key_document"])
+        mismatched_key_id["key_id"] = "0" * 64
+        self.assertFalse(verify_witness_key_document(mismatched_key_id))
+
+        altered_tree_head = copy.deepcopy(f["old_tree_head"])
+        altered_tree_head["root_hash"] = "0" * 64
+        result = verify_witness_statement(
+            f["first_statement"], f["old_key_document"], altered_tree_head
+        )
+        self.assertFalse(result["valid"])
+
+    def test_conflict_bundle_rejects_malformed_observation_shape(self):
+        f = self.fixture
+        bundle = build_conflict_bundle([
+            {
+                "statement": f["first_statement"],
+                "key_document": f["old_key_document"],
+                "tree_head": f["old_tree_head"],
+            },
+            {
+                "statement": f["first_statement"],
+                "key_document": f["old_key_document"],
+                "tree_head": f["old_tree_head"],
+                "unexpected": "reject",
+            },
+        ])
+        result = verify_conflict_bundle(bundle)
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["conflict_detected"])
+        self.assertTrue(result["errors"])
+
+    def test_revoked_prior_key_invalidates_rotated_observation_chain(self):
+        f = self.fixture
+        result = verify_witness_statement(
+            f["second_statement"], f["new_key_document"], f["new_tree_head"],
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+            f["consistency_proof"], f["key_transition"],
+            revoked_key_ids={f["old_key_document"]["key_id"]},
+        )
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["continuity_verified"])
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
