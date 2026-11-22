@@ -193,6 +193,11 @@ class WitnessV1Tests(unittest.TestCase):
             ("witness-statement.v0.1.schema.json", self.fixture["first_statement"]),
             ("witness-key-transition.v0.1.schema.json", self.fixture["key_transition"]),
         ]
+        bundle = build_conflict_bundle([
+            {"statement": self.fixture["first_statement"], "key_document": self.fixture["old_key_document"], "tree_head": self.fixture["old_tree_head"]},
+            {"statement": self.fixture["second_statement"], "key_document": self.fixture["new_key_document"], "tree_head": self.fixture["new_tree_head"], "previous_statement": self.fixture["first_statement"], "previous_key_document": self.fixture["old_key_document"], "previous_tree_head": self.fixture["old_tree_head"], "consistency_proof": self.fixture["consistency_proof"], "key_transition": self.fixture["key_transition"]},
+        ])
+        pairs.append(("witness-conflict-bundle.v0.1.schema.json", bundle))
         for filename, value in pairs:
             schema = json.loads((schema_dir / filename).read_text(encoding="utf-8"))
             Draft202012Validator.check_schema(schema)
