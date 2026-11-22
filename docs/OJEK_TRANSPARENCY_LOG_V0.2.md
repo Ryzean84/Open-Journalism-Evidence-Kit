@@ -88,7 +88,10 @@ Proposed library API:
 CLI examples (entry files are JSON arrays of ordered v0.2 entry objects):
 
 ```bash
-# Build a tree head from entries.json
+# Convert a verified local v0.1 ledger event chain into v0.2 event references
+ojek --workspace ./my-ledger log-v2 import-ledger --output entries.json
+
+# Build a tree head from the resulting ordered entries
 ojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json
 
 # Generate a proof from the full current entry sequence and two tree heads
