@@ -1,0 +1,2 @@
+source_id,canonical_url,publisher_or_issuer,source_title,source_type,language_bcp47,published_at,updated_at,observed_at_utc,retrieval_method,rights_status,authority_basis,version_or_archive_reference,limitations,notes
+S-001,https://example.org/public-document,Example public authority,Example public document,primary_document,en,,,,manual_link,unknown,not_assessed,,,Synthetic example only
