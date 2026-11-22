@@ -18,4 +18,4 @@ ojek = "ojek_ledger.cli:main"
 where = ["src"]
 
 [tool.setuptools.data-files]
-"share/ojek-local-ledger/schemas" = ["schemas/source-observation.v0.1.schema.json"]
+"share/ojek-local-ledger/schemas" = [\n  "schemas/source-observation.v0.1.schema.json",\n  "schemas/transparency-log-entry.v0.2.schema.json",\n  "schemas/transparency-tree-head.v0.2.schema.json",\n  "schemas/transparency-consistency-proof.v0.2.schema.json",\n]
