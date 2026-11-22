@@ -1,11 +1,15 @@
+import contextlib
 import copy
+import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from jsonschema import Draft202012Validator, FormatChecker
 
+from ojek_ledger.cli import main
 from ojek_ledger.transparency_v2 import build_tree_head
 from ojek_ledger.witness_v1 import (
     build_conflict_bundle,
@@ -193,6 +197,56 @@ class WitnessV1Tests(unittest.TestCase):
             invalid = copy.deepcopy(value)
             invalid["unrecognized_field"] = "reject"
             self.assertTrue(list(validator.iter_errors(invalid)), filename)
+
+    def test_offline_witness_cli_verifies_first_and_rotated_statements(self):
+        f = self.fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            artifacts = {
+                "first.json": f["first_statement"],
+                "first-key.json": f["old_key_document"],
+                "old-head.json": f["old_tree_head"],
+                "second.json": f["second_statement"],
+                "second-key.json": f["new_key_document"],
+                "new-head.json": f["new_tree_head"],
+                "proof.json": f["consistency_proof"],
+                "transition.json": f["key_transition"],
+            }
+            paths = {}
+            for filename, value in artifacts.items():
+                path = root / filename
+                path.write_text(json.dumps(value), encoding="utf-8")
+                paths[filename] = str(path)
+
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([
+                    "witness", "verify", paths["first.json"], paths["first-key.json"], paths["old-head.json"],
+                ])
+            self.assertEqual(result, 0, output.getvalue())
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([
+                    "witness", "verify", paths["second.json"], paths["second-key.json"], paths["new-head.json"],
+                    "--previous-statement", paths["first.json"],
+                    "--previous-key", paths["first-key.json"],
+                    "--previous-tree-head", paths["old-head.json"],
+                    "--consistency-proof", paths["proof.json"],
+                    "--key-transition", paths["transition.json"],
+                ])
+            self.assertEqual(result, 0, output.getvalue())
+
+            bundle = build_conflict_bundle([
+                {"statement": f["first_statement"], "key_document": f["old_key_document"], "tree_head": f["old_tree_head"]},
+                {"statement": f["second_statement"], "key_document": f["new_key_document"], "tree_head": f["new_tree_head"],
+                 "previous_statement": f["first_statement"], "previous_key_document": f["old_key_document"],
+                 "previous_tree_head": f["old_tree_head"], "consistency_proof": f["consistency_proof"],
+                 "key_transition": f["key_transition"]},
+            ])
+            bundle_path = root / "bundle.json"
+            bundle_path.write_text(json.dumps(bundle), encoding="utf-8")
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main(["witness", "verify-bundle", str(bundle_path)])
+            self.assertEqual(result, 0, output.getvalue())
 
 
 if __name__ == "__main__":
