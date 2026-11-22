@@ -4,15 +4,15 @@
 
 ## 1. Why a new profile
 
-OJEK v0.1 is a snapshot tree with project-specific hash prefixes and duplicate-last handling for odd-width levels. Its rules and vectors are frozen. They are not the RFC 6962 history-tree construction. A consistency-proof verifier for v0.2 MUST NOT accept a v0.1 root.
+OJEK v0.1 is a snapshot tree with project-specific hash prefixes and duplicate-last handling for odd-width levels. Its rules and vectors are frozen. They are not the RFC 9162 history-tree construction. A consistency-proof verifier for v0.2 MUST NOT accept a v0.1 root.
 
 A snapshot manifest sorted anew at each checkpoint is not an append-only history: a later record could sort before an earlier record. v0.2 therefore defines a distinct ordered log sequence. Existing v0.1 checkpoints can be referenced by entries in that sequence.
 
 ## 2. Tree algorithm
 
-The v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 6962, Sections 2.1 and 2.1.2, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
+The v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 9162, Sections 2.1.1 and 2.1.4, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
 
-Reference: [RFC 6962, Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962.html).
+Reference: [RFC 9162, Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962.html).
 
 For ordered byte strings D[0..n-1]:
 
@@ -64,7 +64,7 @@ For old tree size m and new tree size n:
 - Inputs MUST satisfy 0 <= m <= n.
 - m == n is consistent only when old and new roots are identical; the proof is empty.
 - m == 0 is consistent only when the old root is exactly the defined empty-tree root; the proof is empty because the empty sequence is a prefix of every sequence.
-- 0 < m < n uses the RFC 6962 PROOF/SUBPROOF construction.
+- 0 < m < n uses the RFC 9162 PROOF/SUBPROOF construction.
 - Proof nodes are ordered 32-byte hashes, serialized as lowercase hex.
 - Verification MUST consume the entire proof and reject missing, extra, malformed, or non-32-byte nodes.
 - Verification binds both sizes and both roots and fails if any are changed.
@@ -73,7 +73,7 @@ A valid proof demonstrates that the old tree is the first m leaves of the new tr
 
 ## 6. Implementation status
 
-The repository contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 6962-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. The `ojek log-v2` CLI supports tree-head creation, consistency-proof generation, and offline proof verification. Frozen vectors are in `tests/fixtures/transparency-log-v0.2.json`, and an independent Node.js reference implementation checks the same roots and proofs.
+The repository contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 9162-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. The `ojek log-v2` CLI supports tree-head creation, consistency-proof generation, and offline proof verification. Frozen vectors are in `tests/fixtures/transparency-log-v0.2.json`, and an independent Node.js reference implementation checks the same roots and proofs.
 
 This is an experimental implementation milestone, not a production release. External protocol review, operational witness integration, signed tree heads, and deployment controls remain outstanding.
 
@@ -115,7 +115,7 @@ Conformance coverage includes:
 - Forked histories with equal sizes but different roots.
 - Cross-language Python and JavaScript verification using the same fixture.
 
-Tests MUST compare against independently generated RFC 6962-compatible vectors or a second implementation, not merely round-trip the same code. Property-based tests SHOULD generate append sequences and verify every earlier prefix against every later prefix.
+Tests MUST compare against independently generated RFC 9162-compatible vectors or a second implementation, not merely round-trip the same code. Property-based tests SHOULD generate append sequences and verify every earlier prefix against every later prefix.
 
 ## 9. Migration and compatibility
 
