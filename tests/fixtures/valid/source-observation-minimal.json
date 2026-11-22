@@ -11,7 +11,7 @@
     "language": "en",
     "media_type": "text/html"
   },
-  "observed_at": "2026-11-22T12:00:00Z",
+  "observed_at": "2025-01-15T12:00:00Z",
   "collection": {
     "method": "manual",
     "node_id": "fixture-node-001",
@@ -29,10 +29,10 @@
     "reviewed_at": null
   },
   "integrity": {
-    "representation": "metadata_record",
+    "representation": "normalized_text",
     "algorithm": "sha-256",
     "digest": "64e75e478118b9f3abbe1559fc57d2a98c1e907c31715d206a8bb485de60e3d6",
-    "byte_length": 45
+    "byte_length": 43
   },
   "translation": null,
   "supersedes": null,
