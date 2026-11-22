@@ -378,6 +378,26 @@ class WitnessV1Tests(unittest.TestCase):
         )
         self.assertFalse(result["valid"])
 
+    def test_witness_cli_rejects_invalid_and_duplicate_member_json(self):
+        f = self.fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            key_path = root / "key.json"
+            head_path = root / "head.json"
+            statement_path = root / "statement.json"
+            key_path.write_text(json.dumps(f["old_key_document"]), encoding="utf-8")
+            head_path.write_text(json.dumps(f["old_tree_head"]), encoding="utf-8")
+
+            for raw in ('{"protocol":', '{"protocol":"a","protocol":"b"}'):
+                statement_path.write_text(raw, encoding="utf-8")
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                    result = main([
+                        "witness", "verify", str(statement_path), str(key_path), str(head_path),
+                    ])
+                self.assertEqual(result, 2)
+                self.assertIn("error:", output.getvalue())
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
