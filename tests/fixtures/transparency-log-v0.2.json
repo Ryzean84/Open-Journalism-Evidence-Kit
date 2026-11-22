@@ -1,7 +1,7 @@
 {
   "format": "ojek-transparency-log-v0.2-test-vectors",
   "hash_algorithm": "sha-256",
-  "tree_algorithm": "rfc6962-merkle-tree-sha256",
+  "tree_algorithm": "rfc9162-merkle-tree-sha256",
   "entries": [
     "ojek-v2-vector-0",
     "ojek-v2-vector-1",
