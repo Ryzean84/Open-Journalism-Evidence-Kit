@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap describes proposed work, not implemented capabilities.
+This roadmap distinguishes implemented experimental capabilities from planned work. A checked item does not by itself mean production readiness; see the release checklist and protocol specifications.
 
 ## Phase 0 — Repository foundation
 - [x] Establish project repository.
