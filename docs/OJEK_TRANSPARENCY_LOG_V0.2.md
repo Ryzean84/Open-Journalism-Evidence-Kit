@@ -1,6 +1,6 @@
 # OJEK Append-Only Transparency Log v0.2 — Design Proposal
 
-**Status: design proposal; not implemented or approved as a release.** This proposal does not change or reinterpret v0.1 checkpoints.
+**Status: experimental reference implementation; unsigned and not approved as a production release.** The v0.2 profile does not change or reinterpret v0.1 checkpoints.
 
 ## 1. Why a new profile
 
@@ -10,7 +10,7 @@ A snapshot manifest sorted anew at each checkpoint is not an append-only history
 
 ## 2. Tree algorithm
 
-The proposed v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 6962, Sections 2.1 and 2.1.2, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
+The v0.2 profile adopts the Merkle tree shape and consistency-proof construction in RFC 6962, Sections 2.1 and 2.1.2, with SHA-256. This is a compatibility choice; OJEK is not thereby a Certificate Transparency log.
 
 Reference: [RFC 6962, Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962.html).
 
@@ -79,7 +79,7 @@ Proposed library API:
 - generate_consistency_proof_v2(entries, old_size) -> proof
 - verify_consistency_proof_v2(old_size, new_size, old_root, new_root, proof) -> bool
 
-CLI command names and JSON argument shapes must be finalized consistently during implementation. No placeholder command should be shipped.
+CLI examples (entry files are JSON arrays of ordered v0.2 entry objects):\n\n```bash\n# Build a tree head from entries.json\nojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json\n\n# Generate a proof from the full current entry sequence and two tree heads\nojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json\n\n# Verify offline; exit status 0 means the supplied proof verifies\nojek log-v2 verify-consistency old-head.json new-head.json consistency-proof.json\n```
 
 ## 8. Required tests and interoperability
 
@@ -110,4 +110,4 @@ Consistency proofs make it possible to detect a later root that cannot extend a 
 
 The operator can omit eligible entries, delay publication, or publish misleading references. Public entries can expose investigative patterns. Store minimal digests and non-sensitive metadata only.
 
-This proposal is not an implementation or security certification. Before implementation is accepted, maintainers must review the exact wire format, publish frozen vectors, validate against an independent implementation, and complete the tests above. Signing, key management, timestamp authorities, witnesses, and federation remain separate release gates.
+The current implementation is not a security certification. Before production release, maintainers must review the wire format, validate against independent implementations, expand adversarial tests, and complete the release gates above. Signing, key management, timestamp authorities, witnesses, and federation remain separate release gates.
