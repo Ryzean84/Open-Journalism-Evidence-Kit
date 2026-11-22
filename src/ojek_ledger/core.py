@@ -390,9 +390,9 @@ def correct_record(
     successor = seal_record(successor)
     errors = validate_record(successor)
     if errors:
-        raise LedgerError("Corrected record failed schema validation:\\n- " + "\\n- ".join(errors))
+        raise LedgerError("Corrected record failed schema validation:\n- " + "\n- ".join(errors))
     record_path = paths["records"] / (successor["record_id"].removeprefix("urn:uuid:") + ".json")
-    atomic_write(record_path, canonical_bytes(successor) + b"\\n")
+    atomic_write(record_path, canonical_bytes(successor) + b"\n")
     append_event(paths, "record.superseded", successor, {"supersedes": record_id, "reason": reason})
     return successor
 
