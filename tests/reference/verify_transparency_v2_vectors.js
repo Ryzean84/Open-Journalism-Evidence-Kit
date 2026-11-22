@@ -40,6 +40,21 @@ function merkleRoot(entries) {
     merkleRoot(entries.slice(k)),
   ]));
 }
+function subproof(oldSize, leaves, completeSubtree) {
+  const n = leaves.length;
+  if (oldSize === n) return completeSubtree ? [] : [merkleRoot(leaves)];
+  const k = largestPowerOfTwoLessThan(n);
+  if (oldSize <= k) return subproof(oldSize, leaves.slice(0, k), completeSubtree).concat([merkleRoot(leaves.slice(k))]);
+  return subproof(oldSize - k, leaves.slice(k), false).concat([merkleRoot(leaves.slice(0, k))]);
+}
+function generateConsistency(entries, oldSize) {
+  if (!Number.isSafeInteger(oldSize) || oldSize < 0 || oldSize > entries.length) {
+    throw new RangeError("old tree size out of range");
+  }
+  if (oldSize === 0 || oldSize === entries.length) return [];
+  const leaves = entries.map((entry) => Buffer.from(entry, "utf8"));
+  return subproof(oldSize, leaves, true).map((node) => node.toString("hex"));
+}
 function verifyConsistency(oldSize, newSize, oldRootHex, newRootHex, proofHex) {
   try {
     if (!Number.isSafeInteger(oldSize) || !Number.isSafeInteger(newSize) ||
@@ -130,13 +145,9 @@ const roots = Array.from({ length: generated.length + 1 }, (_, n) =>
   merkleRoot(generated.slice(0, n)).toString("hex"));
 for (let oldSize = 0; oldSize <= generated.length; oldSize += 1) {
   for (let newSize = oldSize; newSize <= generated.length; newSize += 1) {
-    // Proofs are independently frozen in the fixture; this loop checks the
-    // verifier's edge semantics and all known roots are checked above.
-    if (oldSize === newSize) {
-      assert.equal(verifyConsistency(oldSize, newSize, roots[oldSize], roots[newSize], []), true);
-    } else if (oldSize === 0) {
-      assert.equal(verifyConsistency(0, newSize, roots[0], roots[newSize], []), true);
-    }
+    const proof = generateConsistency(generated.slice(0, newSize), oldSize);
+    assert.equal(verifyConsistency(oldSize, newSize, roots[oldSize], roots[newSize], proof), true,
+      `generated proof failed: ${oldSize} -> ${newSize}`);
   }
 }
 console.log("OJEK v0.2 JavaScript reference vectors: PASS");
