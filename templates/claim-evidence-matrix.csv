@@ -1,0 +1,2 @@
+claim_id,claim_text,claim_type,source_ids,source_independence,source_quality,contradictory_evidence,limitations,confidence_language,reviewer,status
+C-001,"","fact|attributed_statement|analysis|inference","S-001","unknown","not_assessed","","","unverified lead","","open"
