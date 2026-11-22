@@ -13,7 +13,19 @@ const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 
 function canonicalJson(value) {
   if (value === null) return "null";
-  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "string") {
+    for (let i = 0; i < value.length; i += 1) {
+      const code = value.charCodeAt(i);
+      if (code >= 0xd800 && code <= 0xdbff) {
+        const next = value.charCodeAt(i + 1);
+        if (!(next >= 0xdc00 && next <= 0xdfff)) throw new TypeError("unpaired UTF-16 high surrogate");
+        i += 1;
+      } else if (code >= 0xdc00 && code <= 0xdfff) {
+        throw new TypeError("unpaired UTF-16 low surrogate");
+      }
+    }
+    return JSON.stringify(value);
+  }
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") {
     if (!Number.isFinite(value)) throw new TypeError("non-finite JSON number");
@@ -123,7 +135,7 @@ function verifyConsistency(oldSize, newSize, oldRootHex, newRootHex, proofHex) {
   }
 }
 
-assert.equal(fixture.format, "ojek-transparency-log-v0.2-test-vectors");
+assert.equal(fixture.format, "ojek-transparency-log-v0.2-test-vectors");\nassert.throws(() => canonicalJson("\\ud800"), /surrogate/);
 assert.equal(verifyConsistency(0, 0, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "0".repeat(64), []), false);
 const canonicalEntryBytes = Buffer.from(canonicalJson(fixture.canonical_entry), "utf8");
 assert.equal(canonicalEntryBytes.toString("utf8"), fixture.canonical_entry_bytes);
