@@ -1,6 +1,6 @@
 # Protocol Schema Catalog
 
-The JSON Schemas in this directory define machine-readable structural contracts. They complement—not replace—the semantic and cryptographic checks in the reference implementation.
+The JSON Schemas in this directory define machine-readable structural contracts. They complement—not replace—the semantic and cryptographic checks in the reference implementation. See the [protocol versioning policy](PROTOCOL_VERSIONING.md) and [operator runbook](OPERATOR_RUNBOOK.md) for compatibility and operational requirements.
 
 | Schema | Protocol object | Primary verifier |
 |---|---|---|
