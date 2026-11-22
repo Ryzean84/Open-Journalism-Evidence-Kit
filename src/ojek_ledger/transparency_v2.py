@@ -18,6 +18,7 @@ PROOF_PROTOCOL = "ojek-consistency-proof-v0.2"
 TREE_ALGORITHM = "rfc9162-merkle-tree-sha256"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _LOG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
+_MEDIA_TYPE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$")
 _ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change"}
 _ENTRY_FIELDS = {
     "protocol", "log_id", "leaf_index", "entry_type", "payload_digest",
@@ -131,8 +132,8 @@ def validate_log_entry(entry: Any, expected_log_id: str | None = None, expected_
         raise TransparencyLogError("unsupported entry_type")
     _hex_digest(entry["payload_digest"], "payload_digest")
     media_type = entry["payload_media_type"]
-    if not isinstance(media_type, str) or not media_type.strip() or len(media_type) > 255:
-        raise TransparencyLogError("payload_media_type must be a non-empty string of at most 255 characters")
+    if not isinstance(media_type, str) or len(media_type) > 255 or not _MEDIA_TYPE_RE.fullmatch(media_type):
+        raise TransparencyLogError("payload_media_type must be a valid type/subtype media type")
     _utc_timestamp(entry["created_at"], "created_at")
     return entry
 
