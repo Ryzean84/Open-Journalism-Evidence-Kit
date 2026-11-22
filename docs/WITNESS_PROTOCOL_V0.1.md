@@ -1,6 +1,6 @@
 # OJEK Witness Protocol v0.1 — Offline Verification Profile
 
-**Status:** experimental reference implementation. This profile is unsigned only where explicitly stated; witness statements themselves are Ed25519-signed. It is not a production trust service.
+**Status:** experimental reference implementation. Public-key documents and v0.2 tree heads are unsigned; witness statements and key-transition documents carry Ed25519 signatures. This is not a production trust service.
 
 ## 1. Purpose and boundaries
 
