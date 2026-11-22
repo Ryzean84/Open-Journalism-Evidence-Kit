@@ -180,5 +180,11 @@
     "hash_algorithm": "sha-256",
     "canonical_preimage": "{\"hash_algorithm\":\"sha-256\",\"issued_at\":\"2026-11-22T00:01:00Z\",\"log_id\":\"newsroom.example/main\",\"protocol\":\"ojek-transparency-log-v0.2\",\"root_hash\":\"1084ab25a36f7686394e2c39ca1a1ca1d6bf62a2c5efb7af0cf057a3f1f54d2b\",\"tree_size\":1}",
     "tree_head_digest": "26c7a2e8c27f5cdfcda942d86b7d564ac019e0d2e608256024009ce325033ade"
-  }
+  },
+  "unicode_canonical_value": {
+    "label": "café",
+    "symbol": "🛰️"
+  },
+  "unicode_canonical_bytes": "{\"label\":\"café\",\"symbol\":\"🛰️\"}",
+  "unicode_leaf_hash": "bea2c5ece314b6305da8b2c708c92599d0d81cba87302e569eea7681443aebb1"
 }
