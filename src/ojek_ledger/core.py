@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,7 +18,9 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 SCHEMA_VERSION = "0.1.0"
-SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "source-observation.v0.1.schema.json"
+_REPOSITORY_SCHEMA = Path(__file__).resolve().parents[2] / "schemas" / "source-observation.v0.1.schema.json"
+_INSTALLED_SCHEMA = Path(sys.prefix) / "share" / "ojek-local-ledger" / "schemas" / "source-observation.v0.1.schema.json"
+SCHEMA_PATH = _REPOSITORY_SCHEMA if _REPOSITORY_SCHEMA.exists() else _INSTALLED_SCHEMA
 
 
 class LedgerError(Exception):
@@ -312,7 +315,9 @@ def export_package(workspace: str | Path, output: str | Path, record_ids: list[s
         if missing:
             raise LedgerError("Unknown record ID(s): " + ", ".join(sorted(missing)))
     included_ids = {record.get("record_id") for record in records}
-    events = [event for event in read_events(paths["events"]) if event.get("record_id") in included_ids]
+    # Include the complete event chain so a recipient can verify previous-event links,
+    # even when only a subset of source records was selected for this package.
+    events = read_events(paths["events"])
     package: dict[str, Any] = {
         "format": "ojek-evidence-package",
         "format_version": SCHEMA_VERSION,
