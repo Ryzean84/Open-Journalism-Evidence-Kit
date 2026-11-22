@@ -164,7 +164,7 @@ def build_key_transition(
     transition_time = datetime.fromisoformat(created_at[:-1] + "+00:00")
     previous_created = datetime.fromisoformat(previous_key_document["created_at"][:-1] + "+00:00")
     new_created = datetime.fromisoformat(new_key_document["created_at"][:-1] + "+00:00")
-    if transition_time < previous_created or transition_time < new_created:
+    if not previous_created <= transition_time <= new_created:
         raise WitnessProtocolError("key transition time must fall between the old and new key creation assertions")
     document = {
         "protocol": TRANSITION_PROTOCOL,
@@ -551,6 +551,7 @@ def verify_conflict_bundle(
     results = []
     errors = []
     normalized = []
+    seen_statement_digests: set[str] = set()
     allowed = {
         "statement", "key_document", "tree_head", "previous_statement",
         "previous_key_document", "previous_tree_head", "consistency_proof", "key_transition",
@@ -566,7 +567,16 @@ def verify_conflict_bundle(
                 observation.get("previous_tree_head"), observation.get("consistency_proof"),
                 observation.get("key_transition"), revoked_key_ids,
             )
-            normalized.append(observation if result["valid"] else None)
+            if result["valid"]:
+                statement_digest = witness_statement_digest(observation["statement"])
+                if statement_digest in seen_statement_digests:
+                    result = {"valid": False, "errors": ["duplicate witness statement replay"]}
+                    normalized.append(None)
+                else:
+                    seen_statement_digests.add(statement_digest)
+                    normalized.append(observation)
+            else:
+                normalized.append(None)
         results.append(result)
         if not result["valid"]:
             errors.append(f"observation {index}: " + "; ".join(result["errors"]))
