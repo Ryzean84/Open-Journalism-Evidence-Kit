@@ -14,7 +14,11 @@ The project is designed for journalists, researchers, libraries, universities, c
 
 ## Foundational design documents
 
-- [Global Decentralized Journalism Ecosystem](GLOBAL_JOURNALISM_ECOSYSTEM.md) — ecosystem map, repository boundaries, participation tracks, and build sequence.
+- [Global Decentralized Journalism Ecosystem](GLOBAL_JOURNALISM_ECOSYSTEM.md) — ecosystem map, repository boundaries, upstream projects, participation tracks, and build sequence.
+- [Contributing](CONTRIBUTING.md) — participation paths for journalists, communities, archivists, translators, researchers, developers, and reviewers.
+- [Governance](GOVERNANCE.md) — decision-making, maintainer roles, conflicts of interest, and release policy.
+- [Code of Conduct](CODE_OF_CONDUCT.md) — community expectations and reporting process.
+- [Security Policy](SECURITY.md) — private vulnerability reporting and deployment cautions.
 
 - [Architecture](ARCHITECTURE.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
