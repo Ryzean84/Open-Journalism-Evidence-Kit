@@ -196,13 +196,13 @@ class WitnessV1Tests(unittest.TestCase):
         f = self.fixture
         valid = build_key_transition(
             f["old_key_document"], f["new_key_document"],
-            self.old_private, self.new_private, "2026-11-22T00:02:59Z",
+            self.old_private, self.new_private, "2026-11-22T00:01:59Z",
         )
         self.assertTrue(verify_key_transition(
             valid, f["old_key_document"], f["new_key_document"]
         ))
 
-        for invalid_time in ("2026-11-21T23:59:59Z", "2026-11-22T00:03:01Z"):
+        for invalid_time in ("2026-11-21T23:59:59Z", "2026-11-22T00:02:01Z"):
             with self.assertRaisesRegex(ValueError, "must fall between"):
                 build_key_transition(
                     f["old_key_document"], f["new_key_document"],
