@@ -106,6 +106,9 @@ class TransparencyV2Tests(unittest.TestCase):
             generate_consistency_proof_v2(self.entries, True)
         with self.assertRaises(TransparencyLogError):
             generate_consistency_proof_v2(self.entries, len(self.entries) + 1)
+        with self.assertRaises(TransparencyLogError):
+            build_log_entry("log", (1 << 53), "record-reference", "a" * 64, "application/json", "2026-11-22T00:00:00Z")
+        self.assertFalse(verify_consistency_proof_v2(1 << 53, 1 << 53, root, root, []))
 
     def test_forked_history_is_rejected(self):
         old = self.entries[:4]
