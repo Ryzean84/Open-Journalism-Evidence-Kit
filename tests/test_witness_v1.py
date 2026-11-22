@@ -320,6 +320,55 @@ class WitnessV1Tests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertFalse(result["continuity_verified"])
 
+    def test_witness_and_log_identity_binding_fail_closed(self):
+        f = self.fixture
+
+        altered_witness = copy.deepcopy(f["first_statement"])
+        altered_witness["witness_id"] = "witness:other-operator"
+        result = verify_witness_statement(
+            altered_witness, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        altered_log = copy.deepcopy(f["first_statement"])
+        altered_log["log_id"] = "another-log/main"
+        result = verify_witness_statement(
+            altered_log, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        malformed_digest = copy.deepcopy(f["first_statement"])
+        malformed_digest["root_hash"] = "z" * 64
+        result = verify_witness_statement(
+            malformed_digest, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+    def test_signature_with_wrong_domain_separator_is_rejected(self):
+        from ojek_ledger.core import canonical_bytes
+
+        f = self.fixture
+        statement = copy.deepcopy(f["first_statement"])
+        payload = {key: value for key, value in statement.items() if key != "signature"}
+        statement["signature"] = self.old_private.sign(
+            b"not-the-ojek-witness-domain" + canonical_bytes(payload)
+        ).hex()
+        result = verify_witness_statement(
+            statement, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+    def test_invalid_consistency_proof_encoding_is_rejected(self):
+        f = self.fixture
+        bad_proof = copy.deepcopy(f["consistency_proof"])
+        bad_proof["proof"][0] = "not-a-lowercase-sha256-digest"
+        result = verify_witness_statement(
+            f["second_statement"], f["old_key_document"], f["new_tree_head"],
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+            bad_proof,
+        )
+        self.assertFalse(result["valid"])
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
