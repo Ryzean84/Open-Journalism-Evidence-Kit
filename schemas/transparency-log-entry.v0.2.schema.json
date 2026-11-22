@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ryzean84/Open-Journalism-Evidence-Kit/blob/main/schemas/transparency-log-entry.v0.2.schema.json",
+  "title": "OJEK Transparency Log Entry v0.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "log_id", "leaf_index", "entry_type", "payload_digest", "payload_media_type", "created_at"],
+  "properties": {
+    "protocol": {"const": "ojek-transparency-log-v0.2"},
+    "log_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
+    "leaf_index": {"type": "integer", "minimum": 0},
+    "entry_type": {"type": "string", "enum": ["record-reference", "checkpoint-reference", "policy-change"]},
+    "payload_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "payload_media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+    "created_at": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"}
+  }
+}
