@@ -471,6 +471,32 @@ class WitnessV1Tests(unittest.TestCase):
         self.assertTrue(result["valid"], result["errors"])
         self.assertFalse(result["continuity_verified"])
 
+    def test_conflict_bundle_observation_limit_is_enforced_by_builder_and_verifier(self):
+        from ojek_ledger.witness_v1 import MAX_CONFLICT_BUNDLE_OBSERVATIONS, CONFLICT_PROTOCOL
+
+        observations = [{} for _ in range(MAX_CONFLICT_BUNDLE_OBSERVATIONS + 1)]
+        with self.assertRaisesRegex(ValueError, "exceeds the limit"):
+            build_conflict_bundle(observations)
+
+        oversized_bundle = {
+            "protocol": CONFLICT_PROTOCOL,
+            "observations": observations,
+        }
+        result = verify_conflict_bundle(oversized_bundle)
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["conflict_detected"])
+        self.assertIn("exceeds the limit", result["errors"][0])
+
+    def test_conflict_bundle_accepts_exact_observation_limit_before_validation(self):
+        from ojek_ledger.witness_v1 import MAX_CONFLICT_BUNDLE_OBSERVATIONS
+
+        observations = [{} for _ in range(MAX_CONFLICT_BUNDLE_OBSERVATIONS)]
+        bundle = build_conflict_bundle(observations)
+        self.assertEqual(len(bundle["observations"]), MAX_CONFLICT_BUNDLE_OBSERVATIONS)
+        result = verify_conflict_bundle(bundle)
+        self.assertFalse(result["valid"])
+        self.assertTrue(result["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()
