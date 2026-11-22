@@ -40,7 +40,7 @@ class TransparencyV2Tests(unittest.TestCase):
         encoded = canonical_bytes(self.fixture["canonical_entry"])
         self.assertEqual(encoded.decode("utf-8"), self.fixture["canonical_entry_bytes"])
         from ojek_ledger.transparency_v2 import leaf_hash_v2
-        self.assertEqual(leaf_hash_v2(encoded).hex(), self.fixture["canonical_entry_leaf_hash"])
+        self.assertEqual(leaf_hash_v2(encoded).hex(), self.fixture["canonical_entry_leaf_hash"])\n        head = build_tree_head("newsroom.example/main", [encoded], "2026-11-22T00:01:00Z")\n        self.assertEqual(head["tree_head_digest"], self.fixture["tree_head_vector"]["tree_head_digest"])\n        self.assertEqual(verify_tree_head(head), True)
 
     def test_frozen_roots(self):
         for vector in self.fixture["roots"]:
