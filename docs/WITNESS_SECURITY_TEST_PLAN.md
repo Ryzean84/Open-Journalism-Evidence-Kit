@@ -47,11 +47,27 @@ These properties do not establish real-world identity, independent administratio
 | Mixed bundle | One valid and one invalid observation | Bundle invalid; do not present it as a clean conflict proof |
 | Duplicate evidence | Repeat the same observation in a bundle | Document behavior; avoid counting duplicates as independent operators |
 | Resource exhaustion | More than 128 observations in a conflict bundle | Reject before per-observation verification or pairwise comparison; maximum pair comparisons are 8,128 |
-| Resource exhaustion | Huge artifacts, deeply nested JSON, oversized proofs | Remaining size/depth/proof limits require measurement and a separate compatibility review |
+| Resource exhaustion | Witness CLI artifact exceeds its per-type byte cap or JSON nesting exceeds 64 containers | Reject before JSON parsing; CLI returns exit code 2 |
+| Resource exhaustion | Conflict bundle exceeds 4 MiB or 128 observations | Reject before per-observation verification or pairwise comparison |
 | CLI boundary | Missing file, malformed JSON, invalid artifact, inaccessible path | Stable nonzero exit and useful error; no traceback leakage of secrets |
 | Secret handling | Search CLI output, logs, bundles, and test artifacts for private key bytes | No private key material emitted or serialized |
 
-## 3. Required test layers
+## 3. Witness CLI input limits
+
+The offline witness CLI applies operational input limits before parsing. These are local resource-protection limits, not changes to the signed artifact formats, protocol identifiers, or published JSON Schemas. Library callers that bypass the CLI remain responsible for bounding their own input sources.
+
+| Artifact | Maximum serialized file size |
+|---|---:|
+| Current or previous witness statement | 64 KiB |
+| Consistency proof | 64 KiB |
+| Key document (current or previous) | 16 KiB |
+| Tree head (current or previous) | 16 KiB |
+| Key transition | 16 KiB |
+| Conflict bundle | 4 MiB |
+
+All witness CLI JSON artifacts are limited to 64 nested arrays/objects. The reader consumes at most the configured limit plus one byte, rejects over-limit input before decoding, requires UTF-8, checks nesting while respecting quoted strings and escapes, then invokes the duplicate-member-rejecting strict JSON parser. These limits are initial CLI defaults and should be revisited against real-world artifact samples before any production deployment; they do not imply a production security certification.
+
+## 4. Required test layers
 
 ### A. Unit tests
 Exercise every validation branch in `witness_v1.py`, including malformed types, field mismatches, invalid signatures, proof-state transitions, key rotation, and revocation.
@@ -68,7 +84,7 @@ Exercise `ojek witness verify` and `ojek witness verify-bundle` with valid, inva
 ### E. Resource-limit tests
 Set explicit limits only after measuring realistic artifacts and documenting the compatibility implications. Candidate limits include maximum bundle observations, serialized artifact bytes, JSON nesting depth, and proof-node counts. Do not introduce arbitrary limits into a published protocol version without a versioning decision.
 
-## 4. Result classification
+## 5. Result classification
 
 Tests and documentation must preserve these distinct outcomes:
 
@@ -80,7 +96,7 @@ Tests and documentation must preserve these distinct outcomes:
 
 Do not reduce these states to a single generic "verified" flag.
 
-## 5. Release gates
+## 6. Release gates
 
 Before describing the witness verifier as production-ready:
 
@@ -94,7 +110,7 @@ Before describing the witness verifier as production-ready:
 
 Passing this plan's automated tests is necessary but not sufficient for a security assurance claim.
 
-## 6. Scope exclusions
+## 7. Scope exclusions
 
 This plan does not authorize or specify:
 - Peer discovery, gossip, or automated network transport.
