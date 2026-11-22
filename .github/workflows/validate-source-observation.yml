@@ -66,5 +66,9 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_templates.py' -v
       - name: Test Merkle checkpoints
         run: python -m unittest discover -s tests -p 'test_checkpoint*.py' -v
+      - name: Test v0.2 transparency log
+        run: python -m unittest discover -s tests -p 'test_transparency_v2.py' -v
       - name: Verify language-neutral Merkle vectors with JavaScript
-        run: node tests/reference/verify_merkle_vectors.js
+        run: |
+          node tests/reference/verify_merkle_vectors.js
+          node tests/reference/verify_transparency_v2_vectors.js
