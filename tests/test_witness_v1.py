@@ -472,7 +472,7 @@ class WitnessV1Tests(unittest.TestCase):
             path.write_text(json.dumps("[" * 256 + "{" * 256), encoding="utf-8")
             self.assertEqual(len(_read_witness_json(path, "statement")), 512)
 
-            path.write_bytes(b"{\\xff}")
+            path.write_bytes(b"{\xff}")
             with self.assertRaisesRegex(ValueError, "must be UTF-8 JSON"):
                 _read_witness_json(path, "statement")
 
