@@ -14,6 +14,9 @@ on:
     paths:
       - "schemas/**"
       - "tests/**"
+      - "src/**"
+      - "pyproject.toml"
+      - "docs/LOCAL_LEDGER.md"
       - "requirements-dev.txt"
       - ".github/workflows/validate-source-observation.yml"
   workflow_dispatch:
