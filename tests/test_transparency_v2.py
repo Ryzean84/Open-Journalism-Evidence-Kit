@@ -225,7 +225,7 @@ class TransparencyV2Tests(unittest.TestCase):
         with self.assertRaises(TransparencyLogError):
             strict_json_loads('{"root_hash":NaN}')
         with self.assertRaises(TransparencyLogError):
-            canonical_bytes({"invalid_unicode": "\\ud800"})
+            canonical_bytes({"invalid_unicode": "\ud800"})
         self.assertEqual(strict_json_loads('{"a":1,"b":[true,null]}'), {"a": 1, "b": [True, None]})
 
     def test_published_v02_json_schemas(self):
