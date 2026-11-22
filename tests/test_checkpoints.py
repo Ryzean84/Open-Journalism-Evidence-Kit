@@ -54,6 +54,26 @@ class CheckpointTests(unittest.TestCase):
         with self.assertRaises(CheckpointError):
             build_checkpoint([], "2026-01-01T00:00:00Z", "bad")
 
+    def test_clock_statement_is_required_and_protocol_defined(self):
+        checkpoint = build_checkpoint([record("a")], "2026-01-01T00:00:00Z")
+        checkpoint["clock_statement"] = "trusted_timestamp"
+        self.assertFalse(verify_checkpoint(checkpoint)["valid"])
+        missing = build_checkpoint([record("a")], "2026-01-01T00:00:00Z")
+        del missing["clock_statement"]
+        self.assertFalse(verify_checkpoint(missing)["valid"])
+
+    def test_unknown_top_level_checkpoint_fields_are_rejected(self):
+        checkpoint = build_checkpoint([record("a")], "2026-01-01T00:00:00Z")
+        checkpoint["unrecognized_extension"] = {"mode": "ambiguous"}
+        self.assertFalse(verify_checkpoint(checkpoint)["valid"])
+
+    def test_required_checkpoint_metadata_types_are_checked(self):
+        for field, value in (("protocol_version", 1), ("created_at", None), ("clock_statement", None), ("merkle_root", None)):
+            checkpoint = build_checkpoint([record("a")], "2026-01-01T00:00:00Z")
+            checkpoint[field] = value
+            with self.subTest(field=field):
+                self.assertFalse(verify_checkpoint(checkpoint)["valid"])
+
     def test_tampered_checkpoint_rejected(self):
         checkpoint = build_checkpoint([record("a"), record("b", "b")], "2026-01-01T00:00:00Z")
         checkpoint["leaves"][0]["record_digest"] = "c" * 64
