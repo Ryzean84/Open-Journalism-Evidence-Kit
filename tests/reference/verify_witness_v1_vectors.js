@@ -122,7 +122,7 @@ function proofDigest(proof) {
 }
 function verifyStatement(statement, keyDoc, treeHead) {
   if (!verifyKeyDocument(keyDoc) || !verifyTreeHead(treeHead)) return false;
-  if (statement.protocol !== "ojek-witness-statement-v0.1" ||
+  if (statement.protocol !== "ojek-witness-statement-v0.1" || statement.signature_algorithm !== "ed25519" ||
       statement.witness_id !== keyDoc.witness_id || statement.key_id !== keyDoc.key_id ||
       statement.log_id !== treeHead.log_id || statement.tree_size !== treeHead.tree_size ||
       statement.root_hash !== treeHead.root_hash || statement.tree_head_digest !== treeHead.tree_head_digest) return false;
