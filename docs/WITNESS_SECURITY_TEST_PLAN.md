@@ -55,6 +55,8 @@ These properties do not establish real-world identity, independent administratio
 | Resource exhaustion | Witness CLI artifact exceeds its per-type byte cap or JSON nesting exceeds 64 containers | Reject before JSON parsing; CLI returns exit code 2 |
 | Resource exhaustion | Conflict bundle exceeds 4 MiB or 128 observations | Reject before per-observation verification or pairwise comparison |
 | CLI boundary | Missing file, malformed JSON, invalid artifact, inaccessible path | Stable nonzero exit and useful error; no traceback leakage of secrets |
+| CLI error contract | Invalid signature, key, tree head, missing continuity context, proof, transition, or revoked key | Return semantic-invalid exit code 1 with structured result; malformed/unreadable input returns exit code 2 |
+| Secret handling | Inspect public key documents, conflict bundles, and witness CLI output for raw/hex/base64 private-key bytes | No private key material is serialized or emitted; the CLI accepts public verification artifacts only |
 | Secret handling | Search CLI output, logs, bundles, and test artifacts for private key bytes | No private key material emitted or serialized |
 
 ## 3. Witness CLI input limits
@@ -84,9 +86,12 @@ Validate all frozen valid artifacts against their JSON Schemas. Mutate each arti
 Keep Python and Node.js implementations aligned on canonicalization, digest preimages, signature verification, key transitions, and conflict classification. The JavaScript witness reference exercises negative witness/key/log bindings, altered tree heads, wrong signature domain, malformed signatures/proofs, and invalid numeric/proof-size bounds. Continue adding negative cases where the reference implementation covers the same protocol behavior; do not imply full witness-protocol parity where it does not.
 
 ### D. CLI integration tests
-Exercise `ojek witness verify` and `ojek witness verify-bundle` with valid, invalid, missing, malformed, and adversarial files. Verify exit codes and output behavior.
+Exercise `ojek witness verify` and `ojek witness verify-bundle` with valid, invalid, missing, malformed, and adversarial files. Verify exit codes and output behavior. Semantic-invalid artifacts return exit code 1 with structured invalid results; malformed or unreadable input returns exit code 2 with a bounded error message.
 
-### E. Resource-limit tests
+### E. Secret-handling tests
+Confirm the CLI accepts public verification artifacts only and that raw, hexadecimal, and base64 encodings of test private keys never appear in public key documents, conflict bundles, or CLI output.
+
+### F. Resource-limit tests
 Set explicit limits only after measuring realistic artifacts and documenting the compatibility implications. Candidate limits include maximum bundle observations, serialized artifact bytes, JSON nesting depth, and proof-node counts. Do not introduce arbitrary limits into a published protocol version without a versioning decision.
 
 ## 5. Result classification
