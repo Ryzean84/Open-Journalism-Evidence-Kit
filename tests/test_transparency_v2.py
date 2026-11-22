@@ -14,7 +14,7 @@ from ojek_ledger.transparency_v2 import (
     TransparencyLogError,
     build_consistency_proof_document,
     build_log_entry,
-    build_tree_head,
+    build_tree_head,\n    canonical_bytes,
     entry_bytes,
     generate_consistency_proof_v2,
     merkle_root_v2,
@@ -34,6 +34,12 @@ class TransparencyV2Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
         cls.entries = [item.encode("utf-8") for item in cls.fixture["entries"]]
+
+    def test_canonical_entry_interoperability_vector(self):
+        encoded = canonical_bytes(self.fixture["canonical_entry"])
+        self.assertEqual(encoded.decode("utf-8"), self.fixture["canonical_entry_bytes"])
+        from ojek_ledger.transparency_v2 import leaf_hash_v2
+        self.assertEqual(leaf_hash_v2(encoded).hex(), self.fixture["canonical_entry_leaf_hash"])
 
     def test_frozen_roots(self):
         for vector in self.fixture["roots"]:
