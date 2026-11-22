@@ -66,7 +66,8 @@ class TransparencyV2Tests(unittest.TestCase):
                 self.assertFalse(verify_consistency_proof_v2(m, n, case["old_root"], case["new_root"], proof[:-1]))
                 self.assertFalse(verify_consistency_proof_v2(m, n, case["old_root"], case["new_root"], proof + ["0" * 64]))
                 self.assertFalse(verify_consistency_proof_v2(m, n, case["old_root"], case["new_root"], ["z" * 64]))
-                if len(proof) > 1:\n                    self.assertFalse(verify_consistency_proof_v2(m, n, case["old_root"], case["new_root"], list(reversed(proof))))
+                if len(proof) > 1:
+                    self.assertFalse(verify_consistency_proof_v2(m, n, case["old_root"], case["new_root"], list(reversed(proof))))
 
     def test_empty_and_equal_size_semantics(self):
         empty = self.fixture["roots"][0]["root_hash"]
