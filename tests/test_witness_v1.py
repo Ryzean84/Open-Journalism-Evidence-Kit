@@ -439,6 +439,22 @@ class WitnessV1Tests(unittest.TestCase):
                     result = main(["witness", "verify-bundle", str(path)])
                 self.assertEqual(result, expected_code, output.getvalue())
 
+    def test_consistency_proof_node_limit_is_enforced_before_node_validation(self):
+        from ojek_ledger.transparency_v2 import MAX_CONSISTENCY_PROOF_NODES, verify_consistency_proof_v2
+
+        f = self.fixture
+        proof = ["not-a-digest"] * (MAX_CONSISTENCY_PROOF_NODES + 1)
+        self.assertFalse(verify_consistency_proof_v2(
+            f["old_tree_head"]["tree_size"], f["new_tree_head"]["tree_size"],
+            f["old_tree_head"]["root_hash"], f["new_tree_head"]["root_hash"], proof,
+        ))
+
+        schema_path = Path(__file__).resolve().parents[1] / "schemas" / "transparency-consistency-proof.v0.2.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        oversized_document = copy.deepcopy(f["consistency_proof"])
+        oversized_document["proof"] = ["0" * 64] * (MAX_CONSISTENCY_PROOF_NODES + 1)
+        self.assertTrue(list(Draft202012Validator(schema).iter_errors(oversized_document)))
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
