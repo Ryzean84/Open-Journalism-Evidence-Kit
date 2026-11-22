@@ -58,7 +58,7 @@ We do not automatically copy or republish full news articles. The default is to 
 
 ## Current maturity
 
-The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype (v0.1) is experimental. A separate v0.2 append-only transparency-log implementation now provides RFC 6962-style Merkle roots, consistency-proof generation and verification, unsigned tree heads, and offline CLI verification. v0.1 snapshot rules remain unchanged. Both formats are unsigned and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Independent witnesses, signed tree heads, trusted timestamps, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
+The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype (v0.1) is experimental. A separate v0.2 append-only transparency-log implementation now provides RFC 9162-style Merkle roots, consistency-proof generation and verification, unsigned tree heads, and offline CLI verification. v0.1 snapshot rules remain unchanged. Both formats are unsigned and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Independent witnesses, signed tree heads, trusted timestamps, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
 
 ## Relationship to Huffman Systems / Open Intelligence Fabric
 
