@@ -32,6 +32,8 @@ _PROOF_DIGEST_DOMAIN = b"OJEK-CONSISTENCY-PROOF-DIGEST-v0.2\x00"
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _HEX128 = re.compile(r"^[0-9a-f]{128}$")
 _MAX_SAFE_INTEGER = (1 << 53) - 1
+# Bound pairwise conflict analysis to at most 8,128 comparisons per bundle.
+MAX_CONFLICT_BUNDLE_OBSERVATIONS = 128
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 _KEY_FIELDS = {"protocol", "witness_id", "key_id", "signature_algorithm", "public_key", "created_at"}
@@ -521,6 +523,10 @@ def verify_witness_statement(
 def build_conflict_bundle(observations: list[dict[str, Any]]) -> dict[str, Any]:
     if not isinstance(observations, list) or len(observations) < 2:
         raise WitnessProtocolError("conflict bundle requires at least two observations")
+    if len(observations) > MAX_CONFLICT_BUNDLE_OBSERVATIONS:
+        raise WitnessProtocolError(
+            f"conflict bundle exceeds the limit of {MAX_CONFLICT_BUNDLE_OBSERVATIONS} observations"
+        )
     return {"protocol": CONFLICT_PROTOCOL, "observations": observations}
 
 
@@ -532,6 +538,15 @@ def verify_conflict_bundle(
         return {"valid": False, "conflict_detected": False, "errors": ["invalid conflict bundle shape"], "conflicts": []}
     if bundle.get("protocol") != CONFLICT_PROTOCOL or not isinstance(bundle.get("observations"), list) or len(bundle["observations"]) < 2:
         return {"valid": False, "conflict_detected": False, "errors": ["unsupported conflict bundle"], "conflicts": []}
+    if len(bundle["observations"]) > MAX_CONFLICT_BUNDLE_OBSERVATIONS:
+        return {
+            "valid": False,
+            "conflict_detected": False,
+            "errors": [
+                f"conflict bundle exceeds the limit of {MAX_CONFLICT_BUNDLE_OBSERVATIONS} observations"
+            ],
+            "conflicts": [],
+        }
 
     results = []
     errors = []

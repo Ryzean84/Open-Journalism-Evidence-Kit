@@ -79,7 +79,7 @@ Private keys MUST NOT be included in repositories, public bundles, logs, or supp
 
 ## 7. Conflict bundles
 
-A conflict bundle contains at least two observations. Each observation contains a signed statement, public-key document, and tree head, with optional previous statement/key/head, consistency proof, and key transition artifacts.
+A conflict bundle contains at least two observations and no more than **128 observations**. The reference builder and verifier enforce this bound, and the JSON Schema publishes the same `maxItems` constraint. The cap bounds the verifier's pairwise split-view comparison to at most 8,128 pairs per bundle. Each observation contains a signed statement, public-key document, and tree head, with optional previous statement/key/head, consistency proof, and key transition artifacts.
 
 The offline checker validates each observation, then detects:
 

@@ -46,7 +46,8 @@ These properties do not establish real-world identity, independent administratio
 | Bundle structure | Missing required observation fields or extra fields | Reject bundle observation |
 | Mixed bundle | One valid and one invalid observation | Bundle invalid; do not present it as a clean conflict proof |
 | Duplicate evidence | Repeat the same observation in a bundle | Document behavior; avoid counting duplicates as independent operators |
-| Resource exhaustion | Excessive observations, huge artifacts, deeply nested JSON | Enforce documented limits and bounded resource use |
+| Resource exhaustion | More than 128 observations in a conflict bundle | Reject before per-observation verification or pairwise comparison; maximum pair comparisons are 8,128 |
+| Resource exhaustion | Huge artifacts, deeply nested JSON, oversized proofs | Remaining size/depth/proof limits require measurement and a separate compatibility review |
 | CLI boundary | Missing file, malformed JSON, invalid artifact, inaccessible path | Stable nonzero exit and useful error; no traceback leakage of secrets |
 | Secret handling | Search CLI output, logs, bundles, and test artifacts for private key bytes | No private key material emitted or serialized |
 
