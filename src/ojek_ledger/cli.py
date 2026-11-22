@@ -11,9 +11,9 @@ from .checkpoints import CheckpointError, build_checkpoint, create_inclusion_pro
 from .transparency_v2 import (
     TransparencyLogError, build_consistency_proof_document, build_tree_head,
     entry_bytes, generate_consistency_proof_v2, strict_json_loads, validate_log_entry,
-    verify_consistency_proof_document, verify_tree_head,
+    verify_consistency_proof_document, verify_tree_head, build_log_entry,
 )
-from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
+from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, read_events, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
 
 
 def parser() -> argparse.ArgumentParser:
@@ -67,6 +67,8 @@ def parser() -> argparse.ArgumentParser:
     checkpoint_verify_proof.add_argument("checkpoint", help="Path to the checkpoint JSON")
     log_v2 = commands.add_parser("log-v2", help="Create and verify v0.2 append-only transparency log artifacts")
     log_commands = log_v2.add_subparsers(dest="log_v2_command", required=True)
+    log_import = log_commands.add_parser("import-ledger", help="Convert a verified local v0.1 event history into ordered v0.2 event references")
+    log_import.add_argument("--output", required=True, help="Output JSON entry array")
     log_head = log_commands.add_parser("head", help="Build an unsigned v0.2 tree head from an ordered JSON entry array")
     log_head.add_argument("entries", help="JSON file containing an array of v0.2 log entries")
     log_head.add_argument("--log-id", required=True)
@@ -166,6 +168,26 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps({"valid": valid, "record_id": proof.get("record_id") if isinstance(proof, dict) else None}, indent=2))
                 return 0 if valid else 1
         if args.command == "log-v2":
+            if args.log_v2_command == "import-ledger":
+                paths, node = require_workspace(workspace)
+                verification = verify_workspace(workspace)
+                if not verification["valid"]:
+                    raise TransparencyLogError("local ledger verification failed: " + "; ".join(verification["problems"]))
+                events = read_events(paths["events"])
+                entries = []
+                for index, event in enumerate(events):
+                    entries.append(build_log_entry(
+                        node["node_id"], index, "ledger-event-reference",
+                        event["event_hash"], "application/vnd.ojek.ledger-event.v0.1+json",
+                        event["occurred_at"],
+                    ))
+                destination = Path(args.output).expanduser()
+                payload = json.dumps(entries, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\\n"
+                atomic_write(destination, payload)
+                print(f"Exported {len(entries)} verified ledger event reference(s): {destination.resolve()}")
+                print(f"Log ID: {node['node_id']}")
+                print("The resulting v0.2 tree head will remain unsigned and unwitnessed.")
+                return 0
             if args.log_v2_command == "head":
                 entries_value = strict_json_loads(Path(args.entries).expanduser().read_text(encoding="utf-8"))
                 if not isinstance(entries_value, list):
