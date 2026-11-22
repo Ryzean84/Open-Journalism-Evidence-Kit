@@ -69,7 +69,19 @@ When receiving an evidence package or transparency artifact:
 5. Do not treat an artifact's own digest as proof that the artifact came from the claimed operator.
 6. Do not treat a successful inclusion or consistency proof as proof that the source material is accurate.
 
-## 6. Incident response
+## 6. Witness verification
+
+Witness statements and conflict bundles can be checked offline. The verifier uses supplied public-key documents and caller-supplied revocation policy; it makes no network requests.
+
+```bash
+ojek witness verify statement.json witness-key.json tree-head.json
+ojek witness verify statement.json witness-key.json tree-head.json --previous-statement previous-statement.json --previous-key previous-key.json --previous-tree-head previous-tree-head.json --consistency-proof consistency-proof.json --key-transition key-transition.json
+ojek witness verify-bundle conflict-bundle.json
+```
+
+Exit code 1 signals an invalid statement or reported continuity failure/conflict. Exit code 2 signals an invalid conflict bundle or input error. A successful signature establishes key possession, not real-world identity or witness independence. See the [witness protocol specification](WITNESS_PROTOCOL_V0.1.md).
+
+## 7. Incident response
 
 If a digest, event chain, tree head, or proof fails verification:
 

@@ -14,6 +14,10 @@ class PackageBuildTests(unittest.TestCase):
             "transparency-log-entry.v0.2.schema.json",
             "transparency-tree-head.v0.2.schema.json",
             "transparency-consistency-proof.v0.2.schema.json",
+            "witness-key.v0.1.schema.json",
+            "witness-statement.v0.1.schema.json",
+            "witness-key-transition.v0.1.schema.json",
+            "witness-conflict-bundle.v0.1.schema.json",
         }
         with tempfile.TemporaryDirectory() as temporary:
             wheel_dir = Path(temporary)

@@ -24,6 +24,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Protocol Versioning and Compatibility](docs/PROTOCOL_VERSIONING.md)
 - [Operator Runbook](docs/OPERATOR_RUNBOOK.md)
 - [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
+- [Witness Protocol v0.1](docs/WITNESS_PROTOCOL_V0.1.md)
 - [Release Readiness Checklist](docs/RELEASE_CHECKLIST.md)
 - [Changelog](CHANGELOG.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
@@ -58,7 +59,7 @@ We do not automatically copy or republish full news articles. The default is to 
 
 ## Current maturity
 
-The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype (v0.1) is experimental. A separate v0.2 append-only transparency-log implementation now provides RFC 9162-style Merkle roots, consistency-proof generation and verification, unsigned tree heads, and offline CLI verification. v0.1 snapshot rules remain unchanged. Both formats are unsigned and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Independent witnesses, signed tree heads, trusted timestamps, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
+The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype (v0.1) is experimental. A separate v0.2 append-only transparency-log implementation provides RFC 9162-style Merkle roots, consistency-proof generation and verification, unsigned tree heads, and offline CLI verification. An experimental witness profile adds Ed25519-signed observations, dual-signed key rotation, offline verification, and split-view conflict bundles. The witness reference implementation is available for offline validation, but independent witness operations, peer discovery, gossip, and federation are not implemented. Neither unsigned tree heads nor witness signatures establish trusted time, log completeness, source authenticity, or truth. v0.1 snapshot rules remain unchanged. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md), [Witness Protocol](docs/WITNESS_PROTOCOL_V0.1.md), and [Roadmap](ROADMAP.md) for maturity and release gates.
 
 ## Relationship to Huffman Systems / Open Intelligence Fabric
 

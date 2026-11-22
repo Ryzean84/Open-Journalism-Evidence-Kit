@@ -19,7 +19,7 @@ For ordered byte strings D[0..n-1]:
 - Empty tree: MTH({}) = SHA-256(empty byte string).
 - Leaf: MTH({d}) = SHA-256(0x00 || d).
 - For n > 1, let k be the largest power of two strictly smaller than n. MTH(D[n]) = SHA-256(0x01 || MTH(D[0:k]) || MTH(D[k:n])).
-- Hashes are exactly 32 bytes, serialized as 64 lowercase hexadecimal characters.
+- Hashes are exactly 32 bytes, serialized as 64 lowercase hexadecimal characters. v0.2 JSON sequence indexes and tree sizes are restricted to safe integers no greater than 9,007,199,254,740,991 so Python and JavaScript implementations represent them identically.
 - No duplicate-last padding is used. Tree shape is determined by the largest-power-of-two split.
 
 The 0x00 and 0x01 prefixes provide leaf/node domain separation. Implementations MUST NOT substitute v0.1's prefixes or duplicate-last rule.

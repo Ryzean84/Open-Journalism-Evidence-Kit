@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ojek:schema:witness-key-transition:v0.1",
+  "title": "OJEK Witness Key Transition v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "witness_id", "previous_key_id", "new_key_id", "created_at", "signature_algorithm", "previous_key_signature", "new_key_signature"],
+  "properties": {
+    "protocol": {"const": "ojek-witness-key-transition-v0.1"},
+    "witness_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
+    "previous_key_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "new_key_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},
+    "signature_algorithm": {"const": "ed25519"},
+    "previous_key_signature": {"type": "string", "pattern": "^[0-9a-f]{128}$"},
+    "new_key_signature": {"type": "string", "pattern": "^[0-9a-f]{128}$"}
+  }
+}

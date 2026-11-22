@@ -14,6 +14,7 @@ from .transparency_v2 import (
     verify_consistency_proof_document, verify_tree_head, build_log_entry,
 )
 from .core import LedgerError, add_record, atomic_write, correct_record, export_package, init_workspace, load_json, load_records, read_events, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
+from .witness_v1 import verify_conflict_bundle, verify_witness_statement
 
 
 def parser() -> argparse.ArgumentParser:
@@ -85,6 +86,21 @@ def parser() -> argparse.ArgumentParser:
     log_verify.add_argument("old_head")
     log_verify.add_argument("new_head")
     log_verify.add_argument("proof")
+    witness = commands.add_parser("witness", help="Offline Ed25519 witness verification")
+    witness_commands = witness.add_subparsers(dest="witness_command", required=True)
+    witness_verify = witness_commands.add_parser("verify", help="Verify a signed witness statement and its continuity artifacts")
+    witness_verify.add_argument("statement")
+    witness_verify.add_argument("key_document")
+    witness_verify.add_argument("tree_head")
+    witness_verify.add_argument("--previous-statement")
+    witness_verify.add_argument("--previous-key")
+    witness_verify.add_argument("--previous-tree-head")
+    witness_verify.add_argument("--consistency-proof")
+    witness_verify.add_argument("--key-transition")
+    witness_verify.add_argument("--revoked-key-id", action="append", default=[])
+    witness_bundle = witness_commands.add_parser("verify-bundle", help="Verify a conflict evidence bundle offline")
+    witness_bundle.add_argument("bundle")
+    witness_bundle.add_argument("--revoked-key-id", action="append", default=[])
     export = commands.add_parser("export", help="Export a deterministic JSON evidence package")
     export.add_argument("--output", default="exports/evidence-package.json")
     export.add_argument("--record-id", action="append", default=[], help="Limit export to this record ID; may be repeated")
@@ -235,6 +251,34 @@ def main(argv: list[str] | None = None) -> int:
                 valid = verify_consistency_proof_document(old_head, new_head, proof)
                 print(json.dumps({"valid": valid, "protocol": "ojek-consistency-proof-v0.2"}, indent=2))
                 return 0 if valid else 1
+        if args.command == "witness":
+            if args.witness_command == "verify":
+                def read_artifact(path):
+                    if path is None:
+                        return None
+                    return strict_json_loads(Path(path).expanduser().read_text(encoding="utf-8"))
+                result = verify_witness_statement(
+                    read_artifact(args.statement),
+                    read_artifact(args.key_document),
+                    read_artifact(args.tree_head),
+                    read_artifact(args.previous_statement),
+                    read_artifact(args.previous_key),
+                    read_artifact(args.previous_tree_head),
+                    read_artifact(args.consistency_proof),
+                    read_artifact(args.key_transition),
+                    set(args.revoked_key_id),
+                )
+                print(json.dumps(result, indent=2, sort_keys=True))
+                if not result["valid"] or result["continuity_status"] == "failed":
+                    return 1
+                return 0
+            if args.witness_command == "verify-bundle":
+                bundle = strict_json_loads(Path(args.bundle).expanduser().read_text(encoding="utf-8"))
+                result = verify_conflict_bundle(bundle, set(args.revoked_key_id))
+                print(json.dumps(result, indent=2, sort_keys=True))
+                if not result["valid"]:
+                    return 2
+                return 1 if result["conflict_detected"] else 0
         if args.command == "export":
             output = export_package(workspace, args.output, args.record_id or None)
             print(f"Exported evidence package: {output.resolve()}")

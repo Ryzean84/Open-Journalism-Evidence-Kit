@@ -1,6 +1,6 @@
 # OJEK Independent Witness Protocol — Architecture Proposal
 
-**Status: architecture proposal; not implemented.** This proposal depends on the separate v0.2 append-only transparency-log design and does not apply to v0.1 snapshot roots.
+**Status: architecture and threat-model document.** The initial offline Ed25519 reference implementation is specified in [WITNESS_PROTOCOL_V0.1.md](WITNESS_PROTOCOL_V0.1.md). It depends on the v0.2 append-only transparency log and does not apply to v0.1 snapshot roots.
 
 ## 1. Principles
 
@@ -98,7 +98,7 @@ Clients choose their own policy: minimum distinct operators, organizational/infr
 
 A verifier reports raw observations separately from its policy decision. A quorum is not proof that underlying evidence is true.
 
-## 10. Implementation gates
+## 10. Reference implementation\n\nThe experimental [Witness Protocol v0.1 specification](WITNESS_PROTOCOL_V0.1.md) freezes the Ed25519 signature preimages, key fingerprints, statement digest, dual-signed key transitions, revocation-policy input, and conflict-bundle semantics. The Python API and offline CLI verify supplied artifacts without network access. No hosted witness service, gossip transport, or peer discovery is implemented.\n\n## 11. Implementation gates
 
 1. Freeze the v0.2 tree-head and consistency-proof format.
 2. Freeze witness statement schema, canonicalization, signature preimage, and key fingerprint.

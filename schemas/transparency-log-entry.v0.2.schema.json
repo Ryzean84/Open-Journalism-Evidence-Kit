@@ -8,7 +8,7 @@
   "properties": {
     "protocol": {"const": "ojek-transparency-log-v0.2"},
     "log_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
-    "leaf_index": {"type": "integer", "minimum": 0},
+    "leaf_index": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
     "entry_type": {"type": "string", "enum": ["record-reference", "checkpoint-reference", "policy-change", "ledger-event-reference"]},
     "payload_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "payload_media_type": {"type": "string", "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$"},

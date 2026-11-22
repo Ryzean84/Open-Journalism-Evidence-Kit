@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ojek:schema:witness-statement:v0.1",
+  "title": "OJEK Witness Statement v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "witness_id", "key_id", "log_id", "tree_size", "root_hash", "tree_head_digest", "observed_at", "previous_statement_digest", "consistency_status", "consistency_from_tree_size", "consistency_proof_digest", "key_transition_digest", "policy_id", "signature_algorithm", "signature"],
+  "properties": {
+    "protocol": {"const": "ojek-witness-statement-v0.1"},
+    "witness_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
+    "key_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "log_id": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"},
+    "tree_size": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "root_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "tree_head_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "observed_at": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},
+    "previous_statement_digest": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "consistency_status": {"type": "string", "enum": ["first_observation", "verified", "failed", "unavailable"]},
+    "consistency_from_tree_size": {"type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991},
+    "consistency_proof_digest": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "key_transition_digest": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "policy_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "signature_algorithm": {"const": "ed25519"},
+    "signature": {"type": "string", "pattern": "^[0-9a-f]{128}$"}
+  }
+}
