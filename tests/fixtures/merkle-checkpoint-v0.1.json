@@ -61,7 +61,77 @@
         "3a81673fb055c2479bc01e115679c201ebc3a228e88f058784d4bd9a577ffe24",
         "bb8362d285992e598a6fc7808735e09d235a60f4789ca3ff648388fdccaa638d"
       ],
-      "expected_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424"
+      "expected_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424",
+      "inclusion_proofs": [
+        {
+          "record_id": "vector:a",
+          "record_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "leaf_index": 0,
+          "leaf_count": 3,
+          "merkle_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424",
+          "checkpoint_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "path": [
+            {
+              "side": "right",
+              "hash": "3a81673fb055c2479bc01e115679c201ebc3a228e88f058784d4bd9a577ffe24"
+            },
+            {
+              "side": "right",
+              "hash": "d744e071762993eec28983813d4999447497e598ee9b1e559732c5dd4ed04ef1"
+            }
+          ]
+        },
+        {
+          "record_id": "vector:b",
+          "record_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "leaf_index": 1,
+          "leaf_count": 3,
+          "merkle_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424",
+          "checkpoint_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "path": [
+            {
+              "side": "left",
+              "hash": "8c20d95e0fe717b2af6661bcb45c8ee7ed6dc659e6540401c075b7f02f3f9ef2"
+            },
+            {
+              "side": "right",
+              "hash": "d744e071762993eec28983813d4999447497e598ee9b1e559732c5dd4ed04ef1"
+            }
+          ]
+        },
+        {
+          "record_id": "vector:c",
+          "record_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "leaf_index": 2,
+          "leaf_count": 3,
+          "merkle_root": "e6dd827ada4a5f474db084511a18e557f329bf809ec5bac3e0c005cdbdc23424",
+          "checkpoint_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "path": [
+            {
+              "side": "right",
+              "hash": "bb8362d285992e598a6fc7808735e09d235a60f4789ca3ff648388fdccaa638d"
+            },
+            {
+              "side": "left",
+              "hash": "1862fe27c9b583eae7d75d3522012934234d8b298ca09b8b1b013b34c659cff8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unicode-record-id",
+      "records": [
+        {
+          "record_id": "vector:é/漢字 🚀",
+          "record_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "canonical_json": "{\"record_digest\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"record_id\":\"vector:é/漢字 🚀\"}",
+      "leaf_hashes": [
+        "d0362bfc7820c1a2a74fc1338c5a58e049b8a905fa869e49a073ba44c497f79c"
+      ],
+      "expected_root": "d0362bfc7820c1a2a74fc1338c5a58e049b8a905fa869e49a073ba44c497f79c"
     }
   ]
 }
