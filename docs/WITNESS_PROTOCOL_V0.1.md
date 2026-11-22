@@ -23,7 +23,7 @@ Domain-separated preimages:
 - Key-transition digest: `SHA-256("OJEK-WITNESS-KEY-TRANSITION-v0.1\0" || canonical_json(full_transition))`.
 - Consistency-proof digest: `SHA-256("OJEK-CONSISTENCY-PROOF-DIGEST-v0.2\0" || canonical_json(proof_document))`.
 
-The null byte shown in each domain string is one byte, not the two printable characters backslash and zero. Hex digests are lowercase. Public keys are 32 raw bytes; signatures are 64 raw bytes.
+The null byte shown in each domain string is one byte, not the two printable characters backslash and zero. Hex digests are lowercase. Public keys are 32 raw bytes; signatures are 64 raw bytes. Witness tree sizes and prior sizes use interoperable JSON safe integers no greater than 9,007,199,254,740,991.
 
 ## 3. Public-key document
 
