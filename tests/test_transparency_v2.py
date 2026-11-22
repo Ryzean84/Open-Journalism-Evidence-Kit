@@ -134,6 +134,9 @@ class TransparencyV2Tests(unittest.TestCase):
         altered = copy.deepcopy(document)
         altered["new_tree_size"] += 1
         self.assertFalse(verify_consistency_proof_document(old_head, new_head, altered))
+        altered = copy.deepcopy(document)
+        altered["old_tree_size"] = True
+        self.assertFalse(verify_consistency_proof_document(old_head, new_head, altered))
         altered_head = copy.deepcopy(new_head)
         altered_head["root_hash"] = "0" * 64
         self.assertFalse(verify_tree_head(altered_head))
