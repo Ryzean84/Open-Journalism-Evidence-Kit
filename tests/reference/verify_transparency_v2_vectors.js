@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-// Independent Node.js reference verifier for OJEK v0.2 RFC 6962-style
+// Independent Node.js reference verifier for OJEK v0.2 RFC 9162-style
 // transparency-log roots and consistency proofs. Uses only built-in modules.
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
