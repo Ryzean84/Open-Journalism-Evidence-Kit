@@ -1,0 +1,34 @@
+{
+  "format": "ojek-transparency-log-v0.2-test-vectors",
+  "hash_algorithm": "sha-256",
+  "tree_algorithm": "rfc6962-merkle-tree-sha256",
+  "entries": ["ojek-v2-vector-0","ojek-v2-vector-1","ojek-v2-vector-2","ojek-v2-vector-3","ojek-v2-vector-4","ojek-v2-vector-5","ojek-v2-vector-6","ojek-v2-vector-7","ojek-v2-vector-8","ojek-v2-vector-9","ojek-v2-vector-10","ojek-v2-vector-11","ojek-v2-vector-12","ojek-v2-vector-13","ojek-v2-vector-14","ojek-v2-vector-15","ojek-v2-vector-16"],
+  "roots": [
+    {"tree_size":0,"root_hash":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"tree_size":1,"root_hash":"33a09d7db659a32b5dbc4c6e300e0d34de3d669c7293e4089aa40171d8c8116f"},
+    {"tree_size":2,"root_hash":"cfafc18f280a41b57825c6a589a836157646181b7ecf05abf4a810344e296738"},
+    {"tree_size":3,"root_hash":"56237a6dd1395130e6e3c77e64abe9c374b2ecc255fbdcce25246132afe51ace"},
+    {"tree_size":4,"root_hash":"2e93701f9dba084d13e8a06ed59df0c391252036f9842da837c17b9a2ba7815b"},
+    {"tree_size":5,"root_hash":"a8a66549aa78ab7c02b1d53f62b30e3413e3e6b85e7baa1912189f1439f1a29a"},
+    {"tree_size":6,"root_hash":"f4e0e09c202314351e63b6caedb7f5ed0ccb4d98840fca6908bd836be92adcf7"},
+    {"tree_size":7,"root_hash":"cbd82be3c883c200b918616d25dd11ab317187e83d643d6bae7b9857a53625cf"},
+    {"tree_size":8,"root_hash":"92fbe1a24ae89ffc22ac4b6c6e38b6953274011b61d8aae43c6d3646e70459e3"},
+    {"tree_size":9,"root_hash":"b3983203cdb6013b6a998bb525fbdb42e6a33d0a66aa94e75e1771f996a61cf1"},
+    {"tree_size":10,"root_hash":"9b2fff15edc5b313a71729e2add94780eb9b70000c1432587ed7e3ecf1da9494"},
+    {"tree_size":11,"root_hash":"2858991fc149b75c193407eee44d58c2d4738476e1ee4d5d2f30d4edadd2847d"},
+    {"tree_size":12,"root_hash":"34f1d25e17ce73ae8c668e28e552440f21e9b9329f0c4815174ca03d94f6c355"},
+    {"tree_size":13,"root_hash":"74b5056219356c764a3224a11d5a6e945d79b4f23fbd50f679332f729762c56f"},
+    {"tree_size":14,"root_hash":"e1353a9d475b6f0e32f62360494eff285ace40cfbeb798a7aee93cbc924c2b8a"},
+    {"tree_size":15,"root_hash":"4e7c48895e192ac064b548a7987469b65c93ecc6ed2f7aea57b943325f65f2be"},
+    {"tree_size":16,"root_hash":"eced550a6ac3d7c293f591442fb18cfe4985283e436e95084d5b4aec53dbe760"},
+    {"tree_size":17,"root_hash":"0e29de14d00cbf50ab13f09ecee3f0090186209d6aeab2a526aefef4889cc8e0"}
+  ],
+  "consistency_cases": [
+    {"old_size":1,"new_size":3,"old_root":"33a09d7db659a32b5dbc4c6e300e0d34de3d669c7293e4089aa40171d8c8116f","new_root":"56237a6dd1395130e6e3c77e64abe9c374b2ecc255fbdcce25246132afe51ace","proof":["c2fac2e2f20e4c65080fa94d0dc06b0f189e3faf349e3682f2c79f9dd8df1bc7","f895f6d47d784e09faa25ae25a24369a319c6a52a529f2b47912c033a80bf7c1"]},
+    {"old_size":2,"new_size":5,"old_root":"cfafc18f280a41b57825c6a589a836157646181b7ecf05abf4a810344e296738","new_root":"a8a66549aa78ab7c02b1d53f62b30e3413e3e6b85e7baa1912189f1439f1a29a","proof":["ed80d1874de2e35335837ea6265305a864541eedb57582272a55f4c03a36de34","c1dabde764e8ae16af2b0b105aa7c0a20640abe3b610b92c687b2aa78fa37ccb"]},
+    {"old_size":5,"new_size":9,"old_root":"a8a66549aa78ab7c02b1d53f62b30e3413e3e6b85e7baa1912189f1439f1a29a","new_root":"b3983203cdb6013b6a998bb525fbdb42e6a33d0a66aa94e75e1771f996a61cf1","proof":["c1dabde764e8ae16af2b0b105aa7c0a20640abe3b610b92c687b2aa78fa37ccb","cc6e2cda0f9eca02f9ac58426c64f9e50aba10a3131266fd8bbe16f0c8779485","7864b0ea86d445a9532498133a0998b7c4e07ac6550be784c8e1adb1035d4342","2e93701f9dba084d13e8a06ed59df0c391252036f9842da837c17b9a2ba7815b","947733c44e4267c6993737bbfa87fc4e46b8ee767f34b12416393b2616077d47"]},
+    {"old_size":8,"new_size":17,"old_root":"92fbe1a24ae89ffc22ac4b6c6e38b6953274011b61d8aae43c6d3646e70459e3","new_root":"0e29de14d00cbf50ab13f09ecee3f0090186209d6aeab2a526aefef4889cc8e0","proof":["1db680ceab8693d963adf34e65d7a00705ea18ad11751d36d147d1562a7e7457","f2a4be234b6272f46a24fcc7a645bb31a261033cc6490801e2024648e8912316"]},
+    {"old_size":3,"new_size":4,"old_root":"56237a6dd1395130e6e3c77e64abe9c374b2ecc255fbdcce25246132afe51ace","new_root":"2e93701f9dba084d13e8a06ed59df0c391252036f9842da837c17b9a2ba7815b","proof":["f895f6d47d784e09faa25ae25a24369a319c6a52a529f2b47912c033a80bf7c1","ae27912139fcab4b0babbaee2c3f86b04048892e4583861396b07c30337632d5","cfafc18f280a41b57825c6a589a836157646181b7ecf05abf4a810344e296738"]},
+    {"old_size":4,"new_size":8,"old_root":"2e93701f9dba084d13e8a06ed59df0c391252036f9842da837c17b9a2ba7815b","new_root":"92fbe1a24ae89ffc22ac4b6c6e38b6953274011b61d8aae43c6d3646e70459e3","proof":["b499da13b69f087a6e83f4dd4719e94c2c2a715f4eeb7abedd96c74f7e29a7c1"]}
+  ]
+}
