@@ -15,7 +15,7 @@ PROTOCOL = "ojek-transparency-log-v0.2"
 ENTRY_PROTOCOL = PROTOCOL
 TREE_HEAD_PROTOCOL = PROTOCOL
 PROOF_PROTOCOL = "ojek-consistency-proof-v0.2"
-TREE_ALGORITHM = "rfc6962-merkle-tree-sha256"
+TREE_ALGORITHM = "rfc9162-merkle-tree-sha256"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _LOG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change"}
@@ -165,7 +165,7 @@ def _mth(leaves: Sequence[bytes]) -> bytes:
 
 
 def merkle_root_v2(entries: Sequence[bytes]) -> str:
-    """Return the RFC 6962-style SHA-256 root for ordered entry byte strings."""
+    """Return the RFC 9162-style SHA-256 root for ordered entry byte strings."""
     if isinstance(entries, (str, bytes, bytearray)):
         raise TransparencyLogError("entries must be a sequence of byte strings")
     if not all(isinstance(entry, bytes) for entry in entries):
@@ -184,7 +184,7 @@ def _subproof(old_size: int, leaves: Sequence[bytes], complete_subtree: bool) ->
 
 
 def generate_consistency_proof_v2(entries: Sequence[bytes], old_size: int) -> list[str]:
-    """Generate an RFC 6962 consistency proof from old_size to len(entries)."""
+    """Generate an RFC 9162 consistency proof from old_size to len(entries)."""
     if isinstance(old_size, bool) or not isinstance(old_size, int):
         raise TransparencyLogError("old_size must be an integer")
     if isinstance(entries, (str, bytes, bytearray)) or not all(isinstance(item, bytes) for item in entries):
