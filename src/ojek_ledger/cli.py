@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "checkpoint":
             if args.checkpoint_command == "create":
                 paths, _ = require_workspace(workspace)
-                from .core import atomic_write, canonical_bytes
+                from .core import canonical_bytes
                 ledger_result = verify_workspace(workspace)
                 if not ledger_result["valid"]:
                     raise CheckpointError("local ledger verification failed: " + "; ".join(ledger_result["problems"]))
@@ -181,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
                 print("Warning: unsigned and unwitnessed; this does not establish trusted time or truth.")
                 return 0
             if args.log_v2_command == "consistency-proof":
-                entries_value = load_json(Path(args.entries).expanduser())
+                entries_value = strict_json_loads(Path(args.entries).expanduser().read_text(encoding="utf-8"))
                 old_head = strict_json_loads(Path(args.old_head).expanduser().read_text(encoding="utf-8"))
                 new_head = strict_json_loads(Path(args.new_head).expanduser().read_text(encoding="utf-8"))
                 if not isinstance(entries_value, list):
