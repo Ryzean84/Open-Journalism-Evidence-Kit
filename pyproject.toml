@@ -26,4 +26,5 @@ where = ["src"]
   "schemas/witness-key.v0.1.schema.json",
   "schemas/witness-statement.v0.1.schema.json",
   "schemas/witness-key-transition.v0.1.schema.json",
+  "schemas/witness-conflict-bundle.v0.1.schema.json",
 ]
