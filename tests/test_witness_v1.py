@@ -320,6 +320,84 @@ class WitnessV1Tests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertFalse(result["continuity_verified"])
 
+    def test_witness_and_log_identity_binding_fail_closed(self):
+        f = self.fixture
+
+        altered_witness = copy.deepcopy(f["first_statement"])
+        altered_witness["witness_id"] = "witness:other-operator"
+        result = verify_witness_statement(
+            altered_witness, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        altered_log = copy.deepcopy(f["first_statement"])
+        altered_log["log_id"] = "another-log/main"
+        result = verify_witness_statement(
+            altered_log, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+        malformed_digest = copy.deepcopy(f["first_statement"])
+        malformed_digest["root_hash"] = "z" * 64
+        result = verify_witness_statement(
+            malformed_digest, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+    def test_signature_with_wrong_domain_separator_is_rejected(self):
+        from ojek_ledger.core import canonical_bytes
+
+        f = self.fixture
+        statement = copy.deepcopy(f["first_statement"])
+        payload = {key: value for key, value in statement.items() if key != "signature"}
+        statement["signature"] = self.old_private.sign(
+            b"not-the-ojek-witness-domain" + canonical_bytes(payload)
+        ).hex()
+        result = verify_witness_statement(
+            statement, f["old_key_document"], f["old_tree_head"]
+        )
+        self.assertFalse(result["valid"])
+
+    def test_invalid_consistency_proof_encoding_is_rejected(self):
+        from ojek_ledger import witness_v1
+        from ojek_ledger.core import canonical_bytes
+
+        f = self.fixture
+        bad_proof = copy.deepcopy(f["consistency_proof"])
+        bad_proof["proof"][0] = "not-a-lowercase-sha256-digest"
+        statement = copy.deepcopy(f["second_statement"])
+        statement["consistency_proof_digest"] = consistency_proof_digest(bad_proof)
+        payload = {key: value for key, value in statement.items() if key != "signature"}
+        statement["signature"] = self.new_private.sign(
+            witness_v1._STATEMENT_DOMAIN + canonical_bytes(payload)
+        ).hex()
+        result = verify_witness_statement(
+            statement, f["new_key_document"], f["new_tree_head"],
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+            bad_proof, f["key_transition"],
+        )
+        self.assertFalse(result["valid"])
+
+    def test_witness_cli_rejects_invalid_and_duplicate_member_json(self):
+        f = self.fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            key_path = root / "key.json"
+            head_path = root / "head.json"
+            statement_path = root / "statement.json"
+            key_path.write_text(json.dumps(f["old_key_document"]), encoding="utf-8")
+            head_path.write_text(json.dumps(f["old_tree_head"]), encoding="utf-8")
+
+            for raw in ('{"protocol":', '{"protocol":"a","protocol":"b"}'):
+                statement_path.write_text(raw, encoding="utf-8")
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                    result = main([
+                        "witness", "verify", str(statement_path), str(key_path), str(head_path),
+                    ])
+                self.assertEqual(result, 2)
+                self.assertIn("error:", output.getvalue())
+
     def test_unavailable_and_failed_proof_states_are_distinct(self):
         f = self.fixture
         unavailable = sign_witness_statement(
