@@ -359,13 +359,22 @@ class WitnessV1Tests(unittest.TestCase):
         self.assertFalse(result["valid"])
 
     def test_invalid_consistency_proof_encoding_is_rejected(self):
+        from ojek_ledger import witness_v1
+        from ojek_ledger.core import canonical_bytes
+
         f = self.fixture
         bad_proof = copy.deepcopy(f["consistency_proof"])
         bad_proof["proof"][0] = "not-a-lowercase-sha256-digest"
+        statement = copy.deepcopy(f["second_statement"])
+        statement["consistency_proof_digest"] = consistency_proof_digest(bad_proof)
+        payload = {key: value for key, value in statement.items() if key != "signature"}
+        statement["signature"] = self.new_private.sign(
+            witness_v1._STATEMENT_DOMAIN + canonical_bytes(payload)
+        ).hex()
         result = verify_witness_statement(
-            f["second_statement"], f["old_key_document"], f["new_tree_head"],
+            statement, f["new_key_document"], f["new_tree_head"],
             f["first_statement"], f["old_key_document"], f["old_tree_head"],
-            bad_proof,
+            bad_proof, f["key_transition"],
         )
         self.assertFalse(result["valid"])
 
