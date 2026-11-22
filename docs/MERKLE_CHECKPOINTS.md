@@ -49,7 +49,7 @@ A proof is verified against a checkpoint's root and checkpoint digest. A user mu
 
 ## Relationship to v0.2
 
-The v0.1 snapshot checkpoint format above is intentionally unchanged. The separate [v0.2 append-only transparency log](OJEK_TRANSPARENCY_LOG_V0.2.md) uses an RFC 6962-style history tree and consistency proofs. A v0.1 Merkle root MUST NOT be supplied as a v0.2 tree head. Migration requires explicit v0.2 reference entries and does not preserve the v0.1 root as a v0.2 root.
+The v0.1 snapshot checkpoint format above is intentionally unchanged. The separate [v0.2 append-only transparency log](OJEK_TRANSPARENCY_LOG_V0.2.md) uses an RFC 9162-style history tree and consistency proofs. A v0.1 Merkle root MUST NOT be supplied as a v0.2 tree head. Migration requires explicit v0.2 reference entries and does not preserve the v0.1 root as a v0.2 root.
 
 ## Next release gates
 
