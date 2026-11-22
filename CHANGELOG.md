@@ -6,7 +6,7 @@ All notable project changes are documented here. This file records repository de
 
 ### Added
 - Experimental OJEK v0.2 append-only transparency-log primitives using the RFC 9162 Merkle tree shape and SHA-256.
-- Consistency-proof generation and verification, unsigned tree heads, strict JSON parsing, and offline CLI commands.
+- Consistency-proof generation and verification, unsigned tree heads, strict JSON parsing, offline CLI commands, and export of verified local ledger events as v0.2 references.
 - Versioned JSON Schemas for v0.2 log entries, tree heads, and consistency-proof documents.
 - Frozen v0.2 root, consistency-proof, and canonical-entry interoperability vectors.
 - Independent Node.js reference implementation and expanded CI coverage.
