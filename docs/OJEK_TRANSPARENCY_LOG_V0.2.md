@@ -38,7 +38,7 @@ Proposed v0.2 entry fields:
 - payload_media_type: non-empty media type
 - created_at: RFC 3339 UTC timestamp asserted by the operator, not trusted time
 
-The canonical UTF-8 bytes of this object under the existing project-specific ojek-json-v1 rules are the leaf input. A record-reference should normally commit to an existing OJEK record digest; a checkpoint-reference may commit to a v0.1 checkpoint digest. Payloads need not be copied into the public log. This keeps the log lightweight and avoids publishing source identities or private material.
+The canonical UTF-8 bytes of this object under the existing project-specific ojek-json-v1 rules are the leaf input. A record-reference should normally commit to an existing OJEK record digest; a checkpoint-reference may commit to a v0.1 checkpoint digest; a ledger-event-reference commits to a verified v0.1 event hash. Payloads need not be copied into the public log. This keeps the log lightweight and avoids publishing source identities or private material.
 
 Unknown fields and protocol identifiers MUST be rejected. Future extensions require a new version or an explicitly negotiated extension mechanism.
 
