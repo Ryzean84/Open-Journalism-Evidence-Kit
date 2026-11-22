@@ -65,7 +65,7 @@ For old tree size m and new tree size n:
 - m == n is consistent only when old and new roots are identical; the proof is empty.
 - m == 0 is consistent only when the old root is exactly the defined empty-tree root; the proof is empty because the empty sequence is a prefix of every sequence.
 - 0 < m < n uses the RFC 9162 PROOF/SUBPROOF construction.
-- Proof nodes are ordered 32-byte hashes, serialized as lowercase hex.
+- Proof nodes are ordered 32-byte hashes, serialized as lowercase hex. The reference verifier and JSON Schema cap proofs at 64 nodes. With tree sizes restricted to safe integers no greater than 9,007,199,254,740,991, the recursive proof construction requires at most 53 sibling nodes; 64 provides implementation margin.
 - Verification MUST consume the entire proof and reject missing, extra, malformed, or non-32-byte nodes.
 - Verification binds both sizes and both roots and fails if any are changed.
 
