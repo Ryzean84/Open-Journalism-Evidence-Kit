@@ -126,6 +126,17 @@ assert.equal(fixture.format, "ojek-transparency-log-v0.2-test-vectors");
 const canonicalEntryBytes = Buffer.from(canonicalJson(fixture.canonical_entry), "utf8");
 assert.equal(canonicalEntryBytes.toString("utf8"), fixture.canonical_entry_bytes);
 assert.equal(leafHash(canonicalEntryBytes).toString("hex"), fixture.canonical_entry_leaf_hash);
+const headVector = fixture.tree_head_vector;
+const headPreimage = canonicalJson({
+  protocol: headVector.protocol,
+  log_id: headVector.log_id,
+  tree_size: headVector.tree_size,
+  root_hash: headVector.root_hash,
+  issued_at: headVector.issued_at,
+  hash_algorithm: headVector.hash_algorithm,
+});
+assert.equal(headPreimage, headVector.canonical_preimage);
+assert.equal(sha256(Buffer.from(headPreimage, "utf8")).toString("hex"), headVector.tree_head_digest);
 for (const vector of fixture.roots) {
   assert.equal(merkleRoot(fixture.entries.slice(0, vector.tree_size)).toString("hex"), vector.root_hash,
     `root mismatch at size ${vector.tree_size}`);
