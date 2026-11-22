@@ -1,0 +1,106 @@
+# Witness Verifier Security Test Plan
+
+**Status:** engineering test plan; not a security certification or independent audit.
+
+This plan defines adversarial test coverage for the experimental offline Ed25519 witness verifier. Its purpose is to make failure behavior explicit before any network exchange or federation work is designed.
+
+## 1. Security properties under test
+
+The verifier should:
+
+1. Bind every signed statement to one exact public-key document and one exact v0.2 tree head.
+2. Reject malformed, altered, unknown-field, or unsupported protocol artifacts.
+3. Distinguish an invalid signature/artifact from a validly signed report of failed continuity.
+4. Verify linked observations, consistency proofs, and dual-signed key transitions without silently upgrading missing evidence.
+5. Detect supported same-log, same-size, different-root conflicts across independently valid observations.
+6. Apply caller-supplied key revocation policy consistently.
+7. Fail closed at both library and CLI boundaries without exposing private key material.
+
+These properties do not establish real-world identity, independent administration, trusted time, log completeness, source authenticity, or factual truth.
+
+## 2. Adversarial test matrix
+
+| Area | Input or attack | Expected behavior |
+|---|---|---|
+| Statement integrity | Alter signature, root, tree-head digest, witness ID, key ID, log ID, or signed policy field | Reject statement |
+| Key binding | Public-key bytes do not match key ID | Reject key document |
+| Identity binding | Statement witness ID or key ID differs from key document | Reject statement |
+| Tree-head binding | Statement log ID, size, root, or digest differs from supplied head | Reject statement |
+| Unknown fields | Add unrecognized top-level fields to protocol artifacts | Reject according to strict schema/runtime validation |
+| Type confusion | Boolean supplied where integer is expected | Reject |
+| Numeric bounds | Negative or greater-than-safe-integer tree size | Reject |
+| Digest encoding | Uppercase, short, non-hex, or malformed digest | Reject |
+| Signature encoding | Wrong length, uppercase, or non-hex signature | Reject |
+| First observation | Include previous-chain fields or prior artifacts | Reject |
+| Continuity | Omit required prior statement, key, or tree head | Reject |
+| Prior chain | Previous statement belongs to another witness or log | Reject |
+| Proof binding | Proof digest differs from signed statement digest | Reject |
+| Proof validity | Invalid proof labeled `verified` | Reject |
+| Proof status | Valid proof labeled `failed` | Reject as inconsistent report |
+| Missing proof | Missing proof represented as `unavailable` without rollback/fork | Accept statement but report continuity unverified |
+| Rollback | Smaller tree size without valid continuity | Report failed continuity; do not treat as verified |
+| Split view | Same log and size with different valid roots | Detect conflict |
+| Key rotation | Missing or invalid old/new dual signature | Reject transition |
+| Rotation timing | Transition outside linked observation interval | Reject |
+| Revocation | Statement signed by key in caller's revoked-key set | Reject |
+| Bundle structure | Missing required observation fields or extra fields | Reject bundle observation |
+| Mixed bundle | One valid and one invalid observation | Bundle invalid; do not present it as a clean conflict proof |
+| Duplicate evidence | Repeat the same observation in a bundle | Document behavior; avoid counting duplicates as independent operators |
+| Resource exhaustion | Excessive observations, huge artifacts, deeply nested JSON | Enforce documented limits and bounded resource use |
+| CLI boundary | Missing file, malformed JSON, invalid artifact, inaccessible path | Stable nonzero exit and useful error; no traceback leakage of secrets |
+| Secret handling | Search CLI output, logs, bundles, and test artifacts for private key bytes | No private key material emitted or serialized |
+
+## 3. Required test layers
+
+### A. Unit tests
+Exercise every validation branch in `witness_v1.py`, including malformed types, field mismatches, invalid signatures, proof-state transitions, key rotation, and revocation.
+
+### B. Schema tests
+Validate all frozen valid artifacts against their JSON Schemas. Mutate each artifact with unknown fields, missing required fields, invalid types, and boundary values. Confirm runtime validation and schema validation agree where the protocol requires them to.
+
+### C. Cross-language vectors
+Keep Python and Node.js implementations aligned on canonicalization, digest preimages, signature verification, key transitions, and conflict classification. Add negative vectors, not only successful examples.
+
+### D. CLI integration tests
+Exercise `ojek witness verify` and `ojek witness verify-bundle` with valid, invalid, missing, malformed, and adversarial files. Verify exit codes and output behavior.
+
+### E. Resource-limit tests
+Set explicit limits only after measuring realistic artifacts and documenting the compatibility implications. Candidate limits include maximum bundle observations, serialized artifact bytes, JSON nesting depth, and proof-node counts. Do not introduce arbitrary limits into a published protocol version without a versioning decision.
+
+## 4. Result classification
+
+Tests and documentation must preserve these distinct outcomes:
+
+- **Invalid evidence:** signature, schema, key binding, tree-head binding, or required proof validation failed.
+- **Valid observation, continuity verified:** signature and exact consistency proof validate against the supplied prior observation.
+- **Valid observation, continuity unavailable:** the witness did not supply a proof; this is not proof of continuity.
+- **Valid observation, continuity failed:** the witness signed a failed continuity result, such as a rollback or invalid proof.
+- **Valid conflict evidence:** individual observations verify, while their authenticated tree heads demonstrate a supported conflict.
+
+Do not reduce these states to a single generic "verified" flag.
+
+## 5. Release gates
+
+Before describing the witness verifier as production-ready:
+
+- [ ] Every applicable matrix row has an automated test or a documented reason it cannot be automated.
+- [ ] Resource limits are measured, specified, and enforced.
+- [ ] Cross-language positive and negative vectors agree.
+- [ ] CLI error behavior is stable and tested.
+- [ ] A reviewer independent of the implementation author reviews cryptographic and protocol behavior.
+- [ ] Known residual risks and unsupported guarantees are published.
+- [ ] The two-operator pilot in [TWO_OPERATOR_WITNESS_PILOT.md](TWO_OPERATOR_WITNESS_PILOT.md) is completed and evidence is recorded.
+
+Passing this plan's automated tests is necessary but not sufficient for a security assurance claim.
+
+## 6. Scope exclusions
+
+This plan does not authorize or specify:
+- Peer discovery, gossip, or automated network transport.
+- A global witness quorum or universal trust policy.
+- Trusted timestamping.
+- A universal signed revocation service.
+- Secure hardware-key integration.
+- Source-intake or journalist-safety certification.
+
+Those require separate designs, explicit threat models, and independent review.
