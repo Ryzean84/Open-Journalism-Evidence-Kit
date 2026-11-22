@@ -33,7 +33,7 @@ Proposed v0.2 entry fields:
 - protocol: exact string ojek-transparency-log-v0.2
 - log_id: non-empty stable log identifier
 - leaf_index: non-negative integer assigned by the log
-- entry_type: registered lowercase token; initial values are record-reference, checkpoint-reference, and policy-change
+- entry_type: registered lowercase token; v0.2 defines record-reference, checkpoint-reference, policy-change, and ledger-event-reference. The latter commits to a verified local v0.1 ledger event hash without copying the event or source material.
 - payload_digest: 64-character lowercase SHA-256 digest
 - payload_media_type: non-empty media type
 - created_at: RFC 3339 UTC timestamp asserted by the operator, not trusted time
