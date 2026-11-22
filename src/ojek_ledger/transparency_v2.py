@@ -17,6 +17,7 @@ TREE_HEAD_PROTOCOL = PROTOCOL
 PROOF_PROTOCOL = "ojek-consistency-proof-v0.2"
 TREE_ALGORITHM = "rfc9162-merkle-tree-sha256"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_MAX_SAFE_INTEGER = (1 << 53) - 1
 _LOG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _MEDIA_TYPE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$")
 _ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change", "ledger-event-reference"}
@@ -124,7 +125,7 @@ def validate_log_entry(entry: Any, expected_log_id: str | None = None, expected_
     if expected_log_id is not None and log_id != expected_log_id:
         raise TransparencyLogError("entry log_id does not match expected log")
     index = entry["leaf_index"]
-    if isinstance(index, bool) or not isinstance(index, int) or index < 0:
+    if isinstance(index, bool) or not isinstance(index, int) or index < 0 or index > _MAX_SAFE_INTEGER:
         raise TransparencyLogError("leaf_index must be a non-negative integer")
     if expected_index is not None and index != expected_index:
         raise TransparencyLogError("leaf_index is not contiguous with the expected sequence")
@@ -208,7 +209,7 @@ def verify_consistency_proof_v2(
     try:
         if (isinstance(old_size, bool) or not isinstance(old_size, int)
                 or isinstance(new_size, bool) or not isinstance(new_size, int)
-                or old_size < 0 or new_size < old_size):
+                or old_size < 0 or new_size < old_size or old_size > _MAX_SAFE_INTEGER or new_size > _MAX_SAFE_INTEGER):
             return False
         first_hash = _hex_digest(old_root, "old_root")
         second_hash = _hex_digest(new_root, "new_root")
@@ -287,7 +288,7 @@ def verify_tree_head(head: Any) -> bool:
             return False
         _log_id(head["log_id"])
         size = head["tree_size"]
-        if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+        if isinstance(size, bool) or not isinstance(size, int) or size < 0 or size > _MAX_SAFE_INTEGER:
             return False
         root_hash = _hex_digest(head["root_hash"], "root_hash")
         if size == 0 and root_hash != _hash(b""):
