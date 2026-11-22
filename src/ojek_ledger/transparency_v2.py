@@ -19,7 +19,7 @@ TREE_ALGORITHM = "rfc9162-merkle-tree-sha256"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _LOG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$")
 _MEDIA_TYPE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9.+-]*$")
-_ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change"}
+_ENTRY_TYPES = {"record-reference", "checkpoint-reference", "policy-change", "ledger-event-reference"}
 _ENTRY_FIELDS = {
     "protocol", "log_id", "leaf_index", "entry_type", "payload_digest",
     "payload_media_type", "created_at",
