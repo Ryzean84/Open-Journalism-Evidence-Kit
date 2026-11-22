@@ -53,7 +53,7 @@ We do not automatically copy or republish full news articles. The default is to 
 
 ## Current maturity
 
-The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint prototype is available on [PR #4](https://github.com/Ryzean84/Open-Journalism-Evidence-Kit/pull/4) for review and is not yet merged. Signed checkpoints, trusted timestamps, independent witnesses, federation, translation infrastructure, and the legal atlas remain future work. See [Roadmap](ROADMAP.md) for implementation gates.
+The local metadata ledger is implemented as an early v0.1 tool. The unsigned Merkle checkpoint and inclusion-proof prototype has been merged into `main` and remains experimental. Checkpoints are operator-generated, unsigned, and unwitnessed; they do not establish trusted time, completeness, source authenticity, or truth. Merkle consistency proofs, signed checkpoints, trusted timestamps, independent witnesses, federation, translation infrastructure, and the legal atlas remain future work. See the [Merkle Checkpoints guide](docs/MERKLE_CHECKPOINTS.md) and [Roadmap](ROADMAP.md) for implementation gates.
 
 ## Relationship to Huffman Systems / Open Intelligence Fabric
 
