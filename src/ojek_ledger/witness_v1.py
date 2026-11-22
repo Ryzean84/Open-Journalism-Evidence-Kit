@@ -294,7 +294,7 @@ def _verify_signature_and_head(
             raise WitnessProtocolError("first observation contains prior-chain fields")
     else:
         _digest(previous_digest, "previous_statement_digest")
-        if isinstance(from_size, bool) or not isinstance(from_size, int) or from_size < 0:
+        if isinstance(from_size, bool) or not isinstance(from_size, int) or from_size < 0 or from_size > _MAX_SAFE_INTEGER:
             raise WitnessProtocolError("consistency_from_tree_size must be a non-negative integer")
         if proof_digest is not None:
             _digest(proof_digest, "consistency_proof_digest")
