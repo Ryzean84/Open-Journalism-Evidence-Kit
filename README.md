@@ -27,6 +27,12 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Rights, Copyright, and Ethical Preservation](RIGHTS_COPYRIGHT_AND_ETHICS.md)
 - [Roadmap](ROADMAP.md)
 
+## Try the local evidence ledger
+
+The first runnable component is available as an early v0.1 command-line tool. It creates a local metadata ledger, validates source observations, records a hash-chained event history, exports portable JSON packages, and verifies local integrity.
+
+See the [Local Ledger guide](docs/LOCAL_LEDGER.md) for installation, quick-start commands, storage layout, and limitations. This tool does not scrape pages, copy article content, provide secure source intake, or establish the truth of a source.
+
 ## The preservation model
 
 We are studying useful ideas from distributed systems and cryptography—append-only event logs, content hashes, hash chains, Merkle trees, signed checkpoints, independent witnesses, and optional content-addressed storage.
