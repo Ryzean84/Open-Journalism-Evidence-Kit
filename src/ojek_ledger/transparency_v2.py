@@ -216,7 +216,8 @@ def verify_consistency_proof_v2(
         proof_nodes = [_hex_digest(item, "proof node") for item in proof]
         empty_root = _hash(b"")
         if old_size == 0:
-            return first_hash == empty_root and not proof_nodes
+            return (first_hash == empty_root and not proof_nodes
+                    and (new_size > 0 or second_hash == empty_root))
         if old_size == new_size:
             return first_hash == second_hash and not proof_nodes
         if new_size == 0 or not proof_nodes:
