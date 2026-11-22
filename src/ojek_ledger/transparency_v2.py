@@ -287,7 +287,9 @@ def verify_tree_head(head: Any) -> bool:
         size = head["tree_size"]
         if isinstance(size, bool) or not isinstance(size, int) or size < 0:
             return False
-        _hex_digest(head["root_hash"], "root_hash")
+        root_hash = _hex_digest(head["root_hash"], "root_hash")
+        if size == 0 and root_hash != _hash(b""):
+            return False
         _utc_timestamp(head["issued_at"], "issued_at")
         supplied = _hex_digest(head["tree_head_digest"], "tree_head_digest")
         payload = {key: head[key] for key in (
