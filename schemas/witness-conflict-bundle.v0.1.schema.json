@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ojek:schema:witness-conflict-bundle:v0.1",
+  "title": "OJEK Witness Conflict Evidence Bundle v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "observations"],
+  "properties": {
+    "protocol": {"const": "ojek-witness-conflict-bundle-v0.1"},
+    "observations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["statement", "key_document", "tree_head"],
+        "properties": {
+          "statement": {"type": "object"},
+          "key_document": {"type": "object"},
+          "tree_head": {"type": "object"},
+          "previous_statement": {"type": ["object", "null"]},
+          "previous_key_document": {"type": ["object", "null"]},
+          "previous_tree_head": {"type": ["object", "null"]},
+          "consistency_proof": {"type": ["object", "null"]},
+          "key_transition": {"type": ["object", "null"]}
+        }
+      }
+    }
+  }
+}
