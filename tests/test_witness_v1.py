@@ -114,6 +114,57 @@ class WitnessV1Tests(unittest.TestCase):
             altered_transition, f["old_key_document"], f["new_key_document"]
         ))
 
+    def test_nested_witness_values_fail_closed_and_numeric_bounds_are_enforced(self):
+        f = self.fixture
+        nested = {"nested": [{"value": []}]}
+
+        statement_cases = ["witness_id", "log_id", "tree_size", "root_hash", "observed_at",
+                           "policy_id", "consistency_status", "signature"]
+        for field in statement_cases:
+            changed = copy.deepcopy(f["first_statement"])
+            changed[field] = copy.deepcopy(nested)
+            result = verify_witness_statement(changed, f["old_key_document"], f["old_tree_head"])
+            self.assertFalse(result["valid"], field)
+            self.assertTrue(result["errors"], field)
+
+        changed_key = copy.deepcopy(f["old_key_document"])
+        changed_key["public_key"] = copy.deepcopy(nested)
+        result = verify_witness_statement(f["first_statement"], changed_key, f["old_tree_head"])
+        self.assertFalse(result["valid"])
+        self.assertTrue(result["errors"])
+
+        changed_head = copy.deepcopy(f["old_tree_head"])
+        changed_head["tree_size"] = copy.deepcopy(nested)
+        result = verify_witness_statement(f["first_statement"], f["old_key_document"], changed_head)
+        self.assertFalse(result["valid"])
+        self.assertTrue(result["errors"])
+
+        malformed_bundle = build_conflict_bundle([
+            {"statement": nested, "key_document": f["old_key_document"], "tree_head": f["old_tree_head"]},
+            {"statement": f["first_statement"], "key_document": f["old_key_document"], "tree_head": f["old_tree_head"]},
+        ])
+        bundle_result = verify_conflict_bundle(malformed_bundle)
+        self.assertFalse(bundle_result["valid"])
+        self.assertTrue(bundle_result["errors"])
+
+        for invalid_size in (-1, 1 << 53, True):
+            changed = copy.deepcopy(f["first_statement"])
+            changed["tree_size"] = invalid_size
+            result = verify_witness_statement(changed, f["old_key_document"], f["old_tree_head"])
+            self.assertFalse(result["valid"], repr(invalid_size))
+            self.assertTrue(result["errors"], repr(invalid_size))
+
+        for invalid_size in (-1, 1 << 53, True):
+            changed = copy.deepcopy(f["second_statement"])
+            changed["consistency_from_tree_size"] = invalid_size
+            result = verify_witness_statement(
+                changed, f["new_key_document"], f["new_tree_head"],
+                f["first_statement"], f["old_key_document"], f["old_tree_head"],
+                f["consistency_proof"], f["key_transition"],
+            )
+            self.assertFalse(result["valid"], repr(invalid_size))
+            self.assertTrue(result["errors"], repr(invalid_size))
+
     def test_verified_status_requires_exact_consistency_proof(self):
         f = self.fixture
         result = verify_witness_statement(
