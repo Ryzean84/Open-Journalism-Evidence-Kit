@@ -22,11 +22,11 @@ This roadmap describes proposed work, not implemented capabilities.
 ## Phase 2 — Daily integrity checkpoints
 - [x] Deterministic Merkle batch construction and inclusion-proof verification (experimental unsigned v0.1; merged to `main`).
 - [ ] Signed checkpoint format and key rotation guidance.
-- [ ] Independent witness protocol.
+- [ ] Independent witness protocol (architecture proposal drafted; schema, signatures, offline verifier, and split-view tests pending).
 - [ ] Checkpoint transparency page or static feed.
 - [x] Frozen SHA-256 Python reference test vectors for empty, one-, two-, and three-leaf trees (v0.1).
 - [x] Independent JavaScript verifier for canonicalization, leaf hashes, roots, and inclusion-proof vectors (Node.js 22; CI).
-- [ ] Merkle consistency proofs between checkpoint sizes.
+- [ ] Merkle consistency proofs between checkpoint sizes (v0.2 design proposal drafted; implementation and independent vectors pending).
 
 ## Phase 3 — Federation
 - [ ] Node identity and capability manifest.
