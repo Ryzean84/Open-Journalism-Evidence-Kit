@@ -141,6 +141,9 @@ assert.equal(verifyConsistency(0, 0, "e3b0c44298fc1c149afbf4c8996fb92427ae41e464
 const canonicalEntryBytes = Buffer.from(canonicalJson(fixture.canonical_entry), "utf8");
 assert.equal(canonicalEntryBytes.toString("utf8"), fixture.canonical_entry_bytes);
 assert.equal(leafHash(canonicalEntryBytes).toString("hex"), fixture.canonical_entry_leaf_hash);
+const unicodeBytes = Buffer.from(canonicalJson(fixture.unicode_canonical_value), "utf8");
+assert.equal(unicodeBytes.toString("utf8"), fixture.unicode_canonical_bytes);
+assert.equal(leafHash(unicodeBytes).toString("hex"), fixture.unicode_leaf_hash);
 const headVector = fixture.tree_head_vector;
 const headPreimage = canonicalJson({
   protocol: headVector.protocol,
