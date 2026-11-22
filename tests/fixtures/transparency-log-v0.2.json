@@ -170,5 +170,15 @@
     "created_at": "2026-11-22T00:00:00Z"
   },
   "canonical_entry_bytes": "{\"created_at\":\"2026-11-22T00:00:00Z\",\"entry_type\":\"record-reference\",\"leaf_index\":0,\"log_id\":\"newsroom.example/main\",\"payload_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"payload_media_type\":\"application/vnd.ojek.record-digest+json\",\"protocol\":\"ojek-transparency-log-v0.2\"}",
-  "canonical_entry_leaf_hash": "1084ab25a36f7686394e2c39ca1a1ca1d6bf62a2c5efb7af0cf057a3f1f54d2b"
+  "canonical_entry_leaf_hash": "1084ab25a36f7686394e2c39ca1a1ca1d6bf62a2c5efb7af0cf057a3f1f54d2b",
+  "tree_head_vector": {
+    "protocol": "ojek-transparency-log-v0.2",
+    "log_id": "newsroom.example/main",
+    "tree_size": 1,
+    "root_hash": "1084ab25a36f7686394e2c39ca1a1ca1d6bf62a2c5efb7af0cf057a3f1f54d2b",
+    "issued_at": "2026-11-22T00:01:00Z",
+    "hash_algorithm": "sha-256",
+    "canonical_preimage": "{\"hash_algorithm\":\"sha-256\",\"issued_at\":\"2026-11-22T00:01:00Z\",\"log_id\":\"newsroom.example/main\",\"protocol\":\"ojek-transparency-log-v0.2\",\"root_hash\":\"1084ab25a36f7686394e2c39ca1a1ca1d6bf62a2c5efb7af0cf057a3f1f54d2b\",\"tree_size\":1}",
+    "tree_head_digest": "26c7a2e8c27f5cdfcda942d86b7d564ac019e0d2e608256024009ce325033ade"
+  }
 }
