@@ -98,7 +98,7 @@ Clients choose their own policy: minimum distinct operators, organizational/infr
 
 A verifier reports raw observations separately from its policy decision. A quorum is not proof that underlying evidence is true.
 
-## 10. Implementation gates
+## 10. Reference implementation\n\nThe experimental [Witness Protocol v0.1 specification](WITNESS_PROTOCOL_V0.1.md) freezes the Ed25519 signature preimages, key fingerprints, statement digest, dual-signed key transitions, revocation-policy input, and conflict-bundle semantics. The Python API and offline CLI verify supplied artifacts without network access. No hosted witness service, gossip transport, or peer discovery is implemented.\n\n## 11. Implementation gates
 
 1. Freeze the v0.2 tree-head and consistency-proof format.
 2. Freeze witness statement schema, canonicalization, signature preimage, and key fingerprint.
