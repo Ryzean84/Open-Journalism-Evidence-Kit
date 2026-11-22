@@ -17,12 +17,13 @@ This roadmap distinguishes implemented experimental capabilities from planned wo
 - [x] Deterministic JSON evidence package export (v0.1).
 - [x] Record digest and event-chain verification commands (v0.1).
 - [x] Unit tests for creation, validation, export determinism, and tamper detection (v0.1).
-- [ ] Signed checkpoints and independent witnesses (future phase; not implied by local hashes).
+- [ ] Signed checkpoints and independent witness deployment (future phase; not implied by local hashes).
 
 ## Phase 2 — Daily integrity checkpoints
 - [x] Deterministic Merkle batch construction and inclusion-proof verification (experimental unsigned v0.1; merged to `main`).
 - [ ] Signed checkpoint format and key rotation guidance.
 - [x] Experimental offline Ed25519 witness statements, public-key fingerprints, dual-signed key rotation, revocation-policy checks, and split-view conflict bundles (no hosted service or gossip; independent review pending).
+- [x] Two-operator pilot procedure and acceptance record (operational demonstration not yet completed).
 - [ ] Checkpoint transparency page or static feed.
 - [x] Frozen SHA-256 Python reference test vectors for empty, one-, two-, and three-leaf trees (v0.1).
 - [x] Independent JavaScript verifier for canonicalization, leaf hashes, roots, and inclusion-proof vectors (Node.js 22; CI).
