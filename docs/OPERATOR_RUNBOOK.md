@@ -25,7 +25,7 @@ OJEK is an early-stage metadata and integrity toolkit. This runbook is not a sec
 From the repository root or installed environment:
 
 ```bash
-o je k --workspace ./my-ledger verify
+ojek --workspace ./my-ledger verify
 ```
 
 The executable is `ojek` (without spaces):
@@ -79,7 +79,7 @@ ojek witness verify statement.json witness-key.json tree-head.json --previous-st
 ojek witness verify-bundle conflict-bundle.json
 ```
 
-Exit code 1 signals an invalid statement or reported continuity failure/conflict. Exit code 2 signals an invalid conflict bundle or input error. A successful signature establishes key possession, not real-world identity or witness independence. See the [witness protocol specification](WITNESS_PROTOCOL_V0.1.md).
+Exit code 1 signals an invalid statement or reported continuity failure/conflict. Exit code 2 signals an invalid conflict bundle or input error. A successful signature establishes key possession, not real-world identity or witness independence. See the [witness protocol specification](WITNESS_PROTOCOL_V0.1.md) and [two-operator pilot procedure](TWO_OPERATOR_WITNESS_PILOT.md) for independent key custody, artifact exchange, and split-view exercises.
 
 ## 7. Incident response
 

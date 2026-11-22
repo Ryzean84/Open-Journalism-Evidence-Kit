@@ -25,6 +25,7 @@ The project is designed for journalists, researchers, libraries, universities, c
 - [Operator Runbook](docs/OPERATOR_RUNBOOK.md)
 - [Protocol Schema Catalog](docs/SCHEMA_CATALOG.md)
 - [Witness Protocol v0.1](docs/WITNESS_PROTOCOL_V0.1.md)
+- [Two-Operator Witness Pilot](docs/TWO_OPERATOR_WITNESS_PILOT.md) — independent operator setup, artifact exchange, offline verification, and split-view exercise
 - [Release Readiness Checklist](docs/RELEASE_CHECKLIST.md)
 - [Changelog](CHANGELOG.md)
 - [Decentralized Public-Information Preservation](DECENTRALIZED_PRESERVATION.md)
