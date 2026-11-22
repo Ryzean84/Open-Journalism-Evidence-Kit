@@ -43,10 +43,11 @@ These properties do not establish real-world identity, independent administratio
 | Split view | Same log and size with different valid roots | Detect conflict |
 | Key rotation | Missing or invalid old/new dual signature | Reject transition |
 | Rotation timing | Transition outside linked observation interval | Reject |
+| Key rollback | Attempt a transition from a newer key document back to an older key document | Reject because transition time must fall within the old-to-new key creation interval |
 | Revocation | Statement signed by key in caller's revoked-key set | Reject |
 | Bundle structure | Missing required observation fields or extra fields | Reject bundle observation |
 | Mixed bundle | One valid and one invalid observation | Bundle invalid; do not present it as a clean conflict proof |
-| Duplicate evidence | Repeat the same observation in a bundle | Document behavior; avoid counting duplicates as independent operators |
+| Duplicate evidence | Repeat the same signed witness statement in a bundle | Reject the replayed duplicate; do not count it as an additional observation |
 | Resource exhaustion | More than 128 observations in a conflict bundle | Reject before per-observation verification or pairwise comparison; maximum pair comparisons are 8,128 |
 | Resource exhaustion | Witness CLI artifact exceeds its per-type byte cap or JSON nesting exceeds 64 containers | Reject before JSON parsing; CLI returns exit code 2 |
 | Resource exhaustion | Conflict bundle exceeds 4 MiB or 128 observations | Reject before per-observation verification or pairwise comparison |
