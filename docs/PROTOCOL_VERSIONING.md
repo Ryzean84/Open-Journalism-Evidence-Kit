@@ -11,7 +11,7 @@ Every cryptographic artifact carries an explicit protocol identifier. Verifiers 
 - v0.1 snapshot checkpoints use `protocol_version: 0.1.0`, `ojek-json-v1`, and `ojek-merkle-sha256-v1`.
 - v0.2 transparency log entries and tree heads use `ojek-transparency-log-v0.2`.
 - v0.2 consistency proof documents use `ojek-consistency-proof-v0.2`.
-- Witness statements use a separate protocol identifier and version; they do not reuse a log or tree-head identifier.
+- Witness public keys use `ojek-witness-key-v0.1`; signed observations use `ojek-witness-statement-v0.1`; dual-signed key transitions use `ojek-witness-key-transition-v0.1`. They do not reuse a log or tree-head identifier.
 
 ## Compatibility rules
 
