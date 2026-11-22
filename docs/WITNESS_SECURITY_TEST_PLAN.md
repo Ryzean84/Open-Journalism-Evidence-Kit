@@ -29,6 +29,7 @@ These properties do not establish real-world identity, independent administratio
 | Unknown fields | Add unrecognized top-level fields to protocol artifacts | Reject according to strict schema/runtime validation |
 | Type confusion | Boolean supplied where integer is expected | Reject |
 | Numeric bounds | Negative or greater-than-safe-integer tree size | Reject |
+| Nested values | Replace protocol scalar fields with arrays/objects or malformed nested observation members | Return an invalid result without an uncaught exception |
 | Digest encoding | Uppercase, short, non-hex, or malformed digest | Reject |
 | Signature encoding | Wrong length, uppercase, or non-hex signature | Reject |
 | First observation | Include previous-chain fields or prior artifacts | Reject |
