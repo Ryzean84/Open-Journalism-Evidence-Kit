@@ -86,5 +86,7 @@ The repository now includes a draft field manual and practical templates intende
 - [Public Records Request Playbook](blueprints/PUBLIC_RECORDS_REQUEST_PLAYBOOK.md)
 - [Independent Integrity Checkpoints](blueprints/INDEPENDENT_CHECKPOINTS.md)
 - [Distributed Public-Information Catalog](blueprints/PUBLIC_INFORMATION_CATALOG.md)
+- [Regional Adaptation Kit](blueprints/REGIONAL_ADAPTATION_KIT.md)
+- [Synthetic Public Contract Training Exercise](training/SYNTHETIC_PUBLIC_CONTRACT_EXERCISE.md)
 
 These materials are proposals and working aids, not implemented federation, secure source intake, legal advice, or safety guarantees. Each jurisdiction must adapt the workflows to local law, language, risks, and editorial practice. Contributions from journalists and community organizations are needed to test and improve them.
