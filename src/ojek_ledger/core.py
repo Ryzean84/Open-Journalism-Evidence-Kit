@@ -314,7 +314,6 @@ def export_package(workspace: str | Path, output: str | Path, record_ids: list[s
         missing = wanted - {record.get("record_id") for record in records}
         if missing:
             raise LedgerError("Unknown record ID(s): " + ", ".join(sorted(missing)))
-    included_ids = {record.get("record_id") for record in records}
     # Include the complete event chain so a recipient can verify previous-event links,
     # even when only a subset of source records was selected for this package.
     events = read_events(paths["events"])
