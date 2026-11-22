@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-from .core import LedgerError, add_record, export_package, init_workspace, require_workspace, validate_workspace, verify_workspace
+from .core import LedgerError, add_record, correct_record, export_package, init_workspace, record_notice, require_workspace, validate_workspace, verify_package, verify_workspace
 
 
 def parser() -> argparse.ArgumentParser:
@@ -38,6 +38,15 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("list", help="List locally recorded source observations")
     commands.add_parser("validate", help="Validate records against the published JSON Schema")
     commands.add_parser("verify", help="Verify record digests and the event hash chain")
+    package_verify = commands.add_parser("verify-package", help="Verify a portable evidence package")
+    package_verify.add_argument("package", help="Path to an exported evidence package")
+    amend = commands.add_parser("amend", help="Append a correction, dispute, withdrawal, or restriction notice")
+    amend.add_argument("--record-id", required=True)
+    amend.add_argument("--type", required=True, choices=["correction", "disputed", "withdrawn", "restricted"])
+    amend.add_argument("--reason", required=True)
+    amend.add_argument("--url", help="Corrected canonical URL (correction only)")
+    amend.add_argument("--title", help="Corrected source title (correction only)")
+    amend.add_argument("--publisher", help="Corrected publisher (correction only)")
     export = commands.add_parser("export", help="Export a deterministic JSON evidence package")
     export.add_argument("--output", default="exports/evidence-package.json")
     export.add_argument("--record-id", action="append", default=[], help="Limit export to this record ID; may be repeated")
@@ -85,6 +94,22 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "export":
             output = export_package(workspace, args.output, args.record_id or None)
             print(f"Exported evidence package: {output.resolve()}")
+            return 0
+        if args.command == "verify-package":
+            result = verify_package(args.package)
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0 if result["valid"] else 1
+        if args.command == "amend":
+            if args.type == "correction":
+                updates = {key: value for key, value in {
+                    "canonical_url": args.url, "title": args.title, "publisher": args.publisher
+                }.items() if value is not None}
+                record = correct_record(workspace, args.record_id, args.reason, updates)
+                print(f"Correction recorded: {record['record_id']}")
+                print(f"Supersedes: {record['supersedes']}")
+            else:
+                event = record_notice(workspace, args.record_id, "record." + args.type, args.reason)
+                print(f"Notice recorded: {event['event_id']} ({event['event_type']})")
             return 0
     except LedgerError as exc:
         print(f"error: {exc}", file=sys.stderr)
