@@ -87,6 +87,10 @@ class WitnessV1Tests(unittest.TestCase):
 
     def test_tampering_wrong_key_and_revocation_fail_closed(self):
         f = self.fixture
+        altered_signature = copy.deepcopy(f["first_statement"])
+        altered_signature["signature"] = "0" * 128
+        result = verify_witness_statement(altered_signature, f["old_key_document"], f["old_tree_head"])
+        self.assertFalse(result["valid"])
         altered = copy.deepcopy(f["second_statement"])
         altered["root_hash"] = "0" * 64
         result = verify_witness_statement(
@@ -247,6 +251,38 @@ class WitnessV1Tests(unittest.TestCase):
             with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
                 result = main(["witness", "verify-bundle", str(bundle_path)])
             self.assertEqual(result, 0, output.getvalue())
+
+    def test_unavailable_and_failed_proof_states_are_distinct(self):
+        f = self.fixture
+        unavailable = sign_witness_statement(
+            f["old_key_document"], self.old_private, f["new_tree_head"],
+            "2026-11-22T00:03:10Z", "baseline-v0.1",
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+        )
+        self.assertEqual(unavailable["consistency_status"], "unavailable")
+        result = verify_witness_statement(
+            unavailable, f["old_key_document"], f["new_tree_head"],
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+        )
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertFalse(result["continuity_verified"])
+
+        invalid_proof = copy.deepcopy(f["consistency_proof"])
+        invalid_proof["new_root"] = "0" * 64
+        failed = sign_witness_statement(
+            f["old_key_document"], self.old_private, f["new_tree_head"],
+            "2026-11-22T00:03:11Z", "baseline-v0.1",
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+            invalid_proof,
+        )
+        self.assertEqual(failed["consistency_status"], "failed")
+        result = verify_witness_statement(
+            failed, f["old_key_document"], f["new_tree_head"],
+            f["first_statement"], f["old_key_document"], f["old_tree_head"],
+            invalid_proof,
+        )
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertFalse(result["continuity_verified"])
 
 
 if __name__ == "__main__":
