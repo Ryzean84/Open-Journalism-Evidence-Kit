@@ -17,6 +17,62 @@ from .core import LedgerError, add_record, atomic_write, correct_record, export_
 from .witness_v1 import verify_conflict_bundle, verify_witness_statement
 
 
+# Operational CLI limits only; these do not alter the witness wire formats or schemas.
+MAX_WITNESS_ARTIFACT_BYTES = {
+    "statement": 64 * 1024,
+    "key_document": 16 * 1024,
+    "tree_head": 16 * 1024,
+    "previous_statement": 64 * 1024,
+    "previous_key": 16 * 1024,
+    "previous_tree_head": 16 * 1024,
+    "consistency_proof": 64 * 1024,
+    "key_transition": 16 * 1024,
+    "bundle": 4 * 1024 * 1024,
+}
+MAX_WITNESS_JSON_DEPTH = 64
+
+
+def _check_json_nesting(source: str, max_depth: int = MAX_WITNESS_JSON_DEPTH) -> None:
+    """Reject excessive JSON container nesting before invoking the JSON parser."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for character in source:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character in "[{":
+            depth += 1
+            if depth > max_depth:
+                raise ValueError(f"JSON nesting exceeds the CLI limit of {max_depth}")
+        elif character in "]}":
+            depth -= 1
+
+
+def _read_witness_json(path: str | Path, artifact_type: str):
+    """Read one bounded UTF-8 witness artifact and parse it strictly."""
+    if artifact_type not in MAX_WITNESS_ARTIFACT_BYTES:
+        raise ValueError("unsupported witness artifact type")
+    limit = MAX_WITNESS_ARTIFACT_BYTES[artifact_type]
+    with Path(path).expanduser().open("rb") as stream:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError(f"{artifact_type} exceeds the CLI size limit of {limit} bytes")
+    try:
+        source = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"{artifact_type} must be UTF-8 JSON") from exc
+    _check_json_nesting(source)
+    return strict_json_loads(source)
+
+
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(
         prog="ojek",
@@ -253,19 +309,19 @@ def main(argv: list[str] | None = None) -> int:
                 return 0 if valid else 1
         if args.command == "witness":
             if args.witness_command == "verify":
-                def read_artifact(path):
+                def read_artifact(path, artifact_type):
                     if path is None:
                         return None
-                    return strict_json_loads(Path(path).expanduser().read_text(encoding="utf-8"))
+                    return _read_witness_json(path, artifact_type)
                 result = verify_witness_statement(
-                    read_artifact(args.statement),
-                    read_artifact(args.key_document),
-                    read_artifact(args.tree_head),
-                    read_artifact(args.previous_statement),
-                    read_artifact(args.previous_key),
-                    read_artifact(args.previous_tree_head),
-                    read_artifact(args.consistency_proof),
-                    read_artifact(args.key_transition),
+                    read_artifact(args.statement, "statement"),
+                    read_artifact(args.key_document, "key_document"),
+                    read_artifact(args.tree_head, "tree_head"),
+                    read_artifact(args.previous_statement, "previous_statement"),
+                    read_artifact(args.previous_key, "previous_key"),
+                    read_artifact(args.previous_tree_head, "previous_tree_head"),
+                    read_artifact(args.consistency_proof, "consistency_proof"),
+                    read_artifact(args.key_transition, "key_transition"),
                     set(args.revoked_key_id),
                 )
                 print(json.dumps(result, indent=2, sort_keys=True))
@@ -273,7 +329,7 @@ def main(argv: list[str] | None = None) -> int:
                     return 1
                 return 0
             if args.witness_command == "verify-bundle":
-                bundle = strict_json_loads(Path(args.bundle).expanduser().read_text(encoding="utf-8"))
+                bundle = _read_witness_json(args.bundle, "bundle")
                 result = verify_conflict_bundle(bundle, set(args.revoked_key_id))
                 print(json.dumps(result, indent=2, sort_keys=True))
                 if not result["valid"]:
