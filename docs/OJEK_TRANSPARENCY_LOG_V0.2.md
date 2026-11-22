@@ -55,7 +55,7 @@ A v0.2 tree head contains:
 
 The initial design profile is unsigned. Anyone able to replace a tree head can produce another valid unsigned tree head. A future signed profile must define an explicit version, signature algorithm, key identity, and exact signature preimage; signatures must not be bolted onto this format ambiguously.
 
-The tree-head digest preimage and final field names MUST be frozen with test vectors before implementation.
+The v0.2 implementation freezes the tree-head digest preimage as SHA-256 over canonical UTF-8 JSON of exactly these six fields: `protocol`, `log_id`, `tree_size`, `root_hash`, `issued_at`, and `hash_algorithm`. The `tree_head_digest` field is excluded from its own preimage. The initial tree head is unsigned; no signature field is accepted. The wire format and preimage are covered by implementation tests.
 
 ## 5. Consistency proof semantics
 
@@ -71,7 +71,7 @@ For old tree size m and new tree size n:
 
 A valid proof demonstrates that the old tree is the first m leaves of the new tree under this algorithm. It does not establish completeness, truth, authenticity, lawful collection, accurate time, or that all observers saw the same head.
 
-## 6. Implementation target
+## 6. Implementation status\n\nThe repository now contains an initial Python implementation in `src/ojek_ledger/transparency_v2.py` for entry validation, canonical entry bytes, RFC 6962-style roots, consistency-proof generation and verification, unsigned tree heads, and proof-document binding. Frozen cross-language vectors are in `tests/fixtures/transparency-log-v0.2.json`. This is an initial implementation milestone, not a production release: independent review, CLI integration, additional adversarial testing, and operational witness integration remain required.\n\n## 7. Implementation target
 
 Proposed library API:
 
@@ -81,7 +81,7 @@ Proposed library API:
 
 CLI command names and JSON argument shapes must be finalized consistently during implementation. No placeholder command should be shipped.
 
-## 7. Required tests and interoperability
+## 8. Required tests and interoperability
 
 Freeze vectors covering:
 
@@ -97,14 +97,14 @@ Freeze vectors covering:
 
 Tests MUST compare against independently generated RFC 6962-compatible vectors or a second implementation, not merely round-trip the same code. Property-based tests SHOULD generate append sequences and verify every earlier prefix against every later prefix.
 
-## 8. Migration and compatibility
+## 9. Migration and compatibility
 
 - v0.1 verification remains unchanged and supported.
 - A v0.1 snapshot may be referenced by a v0.2 checkpoint-reference entry, but its root MUST NOT be treated as a v0.2 log root.
 - Migration means appending explicit references to old checkpoint digests in a new v0.2 log; it does not preserve the old root.
 - Consumers MUST dispatch by explicit protocol identifier and fail closed on unknown identifiers.
 
-## 9. Threat model and release gate
+## 10. Threat model and release gate
 
 Consistency proofs make it possible to detect a later root that cannot extend a previously observed prefix. They do not prevent an operator from maintaining two internally consistent forks and showing each to different clients. That requires independent witnesses and gossip.
 
