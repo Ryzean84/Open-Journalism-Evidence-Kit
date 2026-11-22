@@ -318,7 +318,11 @@ def verify_consistency_proof_document(old_head: Any, new_head: Any, document: An
         return False
     if document.get("log_id") != old_head["log_id"] or document.get("log_id") != new_head["log_id"]:
         return False
-    if document.get("old_tree_size") != old_head["tree_size"] or document.get("new_tree_size") != new_head["tree_size"]:
+    old_size = document.get("old_tree_size")
+    new_size = document.get("new_tree_size")
+    if (isinstance(old_size, bool) or not isinstance(old_size, int)
+            or isinstance(new_size, bool) or not isinstance(new_size, int)
+            or old_size != old_head["tree_size"] or new_size != new_head["tree_size"]):
         return False
     if document.get("old_root") != old_head["root_hash"] or document.get("new_root") != new_head["root_hash"]:
         return False
