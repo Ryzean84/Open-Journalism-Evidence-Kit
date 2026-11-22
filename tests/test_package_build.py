@@ -20,12 +20,13 @@ class PackageBuildTests(unittest.TestCase):
             subprocess.run(
                 [
                     sys.executable, "-m", "pip", "wheel", str(repository),
-                    "--no-deps", "--no-build-isolation", "--wheel-dir", str(wheel_dir),
+                    "--no-deps", "--wheel-dir", str(wheel_dir),
                 ],
                 check=True,
                 capture_output=True,
                 text=True,
             )
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
             wheels = list(wheel_dir.glob("*.whl"))
             self.assertEqual(len(wheels), 1)
             with zipfile.ZipFile(wheels[0]) as archive:
