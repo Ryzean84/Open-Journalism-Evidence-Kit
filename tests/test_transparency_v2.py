@@ -299,6 +299,29 @@ class TransparencyV2Tests(unittest.TestCase):
             self.assertEqual(entries[0]["leaf_index"], 0)
             self.assertEqual(entries[0]["entry_type"], "ledger-event-reference")
             self.assertEqual(entries[0]["log_id"], strict_json_loads((workspace / "node.json").read_text(encoding="utf-8"))["node_id"])
+            head_path = root / "tree-head.json"
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([
+                    "log-v2", "head", str(output_path), "--log-id", entries[0]["log_id"],
+                    "--issued-at", "2026-11-22T00:05:00Z", "--output", str(head_path),
+                ])
+            self.assertEqual(result, 0, output.getvalue())
+            self.assertTrue(verify_tree_head(strict_json_loads(head_path.read_text(encoding="utf-8"))))
+
+            tampered_workspace = root / "tampered-workspace"
+            init_workspace(tampered_workspace)
+            add_record(tampered_workspace, {"url": "https://example.org/second-report"})
+            events_path = tampered_workspace / "events.jsonl"
+            events = events_path.read_text(encoding="utf-8").replace('"event_type":"record.created"', '"event_type":"record.deleted"')
+            events_path.write_text(events, encoding="utf-8")
+            rejected_output = root / "should-not-exist.json"
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([
+                    "--workspace", str(tampered_workspace), "log-v2", "import-ledger",
+                    "--output", str(rejected_output),
+                ])
+            self.assertEqual(result, 2)
+            self.assertFalse(rejected_output.exists())
 
 
 if __name__ == "__main__":
