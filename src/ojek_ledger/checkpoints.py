@@ -168,6 +168,17 @@ def verify_checkpoint(document: Any) -> dict[str, Any]:
         problems.append("unsupported hash or tree algorithm")
     if document.get("canonicalization") != CANONICALIZATION:
         problems.append("unsupported canonicalization")
+    if document.get("clock_statement") != "operator_asserted_unwitnessed":
+        problems.append("unsupported or missing clock_statement")
+    allowed_fields = {
+        "format", "protocol_version", "created_at", "clock_statement",
+        "hash_algorithm", "canonicalization", "tree_algorithm", "leaf_order",
+        "odd_leaf_rule", "leaf_count", "previous_checkpoint_digest", "leaves",
+        "merkle_root", "authentication", "checkpoint_digest",
+    }
+    unknown_fields = set(document) - allowed_fields
+    if unknown_fields:
+        problems.append("unsupported checkpoint fields: " + ", ".join(sorted(str(key) for key in unknown_fields)))
     if document.get("leaf_order") != "record_id_ascending_unicode_codepoint":
         problems.append("unsupported leaf ordering")
     if document.get("odd_leaf_rule") != "duplicate_last":
