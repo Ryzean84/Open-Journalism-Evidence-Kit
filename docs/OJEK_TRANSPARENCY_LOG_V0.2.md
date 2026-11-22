@@ -53,7 +53,7 @@ A v0.2 tree head contains:
 - issued_at: RFC 3339 UTC operator assertion
 - hash_algorithm: exact token sha-256
 
-The initial design profile is unsigned. Anyone able to replace a tree head can produce another valid unsigned tree head. A future signed profile must define an explicit version, signature algorithm, key identity, and exact signature preimage; signatures must not be bolted onto this format ambiguously.
+The initial design profile is unsigned. Anyone able to replace a tree head can produce another valid unsigned tree head. The CLI uses a strict JSON parser that rejects duplicate object members and non-standard constants to avoid ambiguous artifact interpretation. A future signed profile must define an explicit version, signature algorithm, key identity, and exact signature preimage; signatures must not be bolted onto this format ambiguously.
 
 The v0.2 implementation freezes the tree-head digest preimage as SHA-256 over canonical UTF-8 JSON of exactly these six fields: `protocol`, `log_id`, `tree_size`, `root_hash`, `issued_at`, and `hash_algorithm`. The `tree_head_digest` field is excluded from its own preimage. The initial tree head is unsigned; no signature field is accepted. The wire format and preimage are covered by implementation tests.
 
