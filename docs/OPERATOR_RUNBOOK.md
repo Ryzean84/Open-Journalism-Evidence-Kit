@@ -49,6 +49,7 @@ v0.1 checkpoints are unsigned snapshots. Their digest detects changes relative t
 The v0.2 commands operate on an ordered JSON array of validated log entries. They do not automatically import the local ledger or publish a log.
 
 ```bash
+ojek --workspace ./my-ledger log-v2 import-ledger --output entries.json
 ojek log-v2 head entries.json --log-id newsroom.example/main --issued-at 2026-11-22T00:00:00Z --output tree-head.json
 ojek log-v2 verify-head tree-head.json
 ojek log-v2 consistency-proof entries.json old-head.json new-head.json --output consistency-proof.json
