@@ -11,6 +11,21 @@ const path = require("node:path");
 const fixturePath = path.join(__dirname, "..", "fixtures", "transparency-log-v0.2.json");
 const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 
+function canonicalJson(value) {
+  if (value === null) return "null";
+  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new TypeError("non-finite JSON number");
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) return "[" + value.map(canonicalJson).join(",") + "]";
+  if (typeof value === "object") {
+    const keys = Object.keys(value).sort();
+    return "{" + keys.map((key) => JSON.stringify(key) + ":" + canonicalJson(value[key])).join(",") + "}";
+  }
+  throw new TypeError("unsupported canonical JSON value");
+}
 function sha256(bytes) {
   return crypto.createHash("sha256").update(bytes).digest();
 }
@@ -108,6 +123,9 @@ function verifyConsistency(oldSize, newSize, oldRootHex, newRootHex, proofHex) {
 }
 
 assert.equal(fixture.format, "ojek-transparency-log-v0.2-test-vectors");
+const canonicalEntryBytes = Buffer.from(canonicalJson(fixture.canonical_entry), "utf8");
+assert.equal(canonicalEntryBytes.toString("utf8"), fixture.canonical_entry_bytes);
+assert.equal(leafHash(canonicalEntryBytes).toString("hex"), fixture.canonical_entry_leaf_hash);
 for (const vector of fixture.roots) {
   assert.equal(merkleRoot(fixture.entries.slice(0, vector.tree_size)).toString("hex"), vector.root_hash,
     `root mismatch at size ${vector.tree_size}`);
