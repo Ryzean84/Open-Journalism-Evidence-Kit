@@ -1,8 +1,12 @@
+import contextlib
 import copy
+import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
+from ojek_ledger.cli import main
 from ojek_ledger.transparency_v2 import (
     PROOF_PROTOCOL,
     TransparencyLogError,
@@ -139,6 +143,52 @@ class TransparencyV2Tests(unittest.TestCase):
         head_a = build_tree_head("log-a", self.entries[:2], "2026-11-22T00:00:00Z")
         head_b = build_tree_head("log-b", self.entries[:3], "2026-11-22T00:01:00Z")
         self.assertFalse(verify_consistency_proof_document(head_a, head_b, {}))
+
+    def test_cli_tree_head_proof_and_offline_verification(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            entries = []
+            for index in range(5):
+                entries.append(build_log_entry(
+                    "newsroom.example/log-cli", index, "record-reference",
+                    format(index + 1, "x") * 64,
+                    "application/vnd.ojek.record-digest+json",
+                    "2026-11-22T00:00:00Z",
+                ))
+            old_entries = root / "old-entries.json"
+            all_entries = root / "all-entries.json"
+            old_entries.write_text(json.dumps(entries[:2]), encoding="utf-8")
+            all_entries.write_text(json.dumps(entries), encoding="utf-8")
+            old_head = root / "old-head.json"
+            new_head = root / "new-head.json"
+            proof_file = root / "proof.json"
+
+            def invoke(arguments):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                    result = main(arguments)
+                return result, output.getvalue()
+
+            result, output = invoke([
+                "log-v2", "head", str(old_entries), "--log-id", "newsroom.example/log-cli",
+                "--issued-at", "2026-11-22T00:00:00Z", "--output", str(old_head),
+            ])
+            self.assertEqual(result, 0, output)
+            result, output = invoke([
+                "log-v2", "head", str(all_entries), "--log-id", "newsroom.example/log-cli",
+                "--issued-at", "2026-11-22T00:01:00Z", "--output", str(new_head),
+            ])
+            self.assertEqual(result, 0, output)
+            result, output = invoke([
+                "log-v2", "consistency-proof", str(all_entries), str(old_head),
+                str(new_head), "--output", str(proof_file),
+            ])
+            self.assertEqual(result, 0, output)
+            result, output = invoke([
+                "log-v2", "verify-consistency", str(old_head), str(new_head), str(proof_file),
+            ])
+            self.assertEqual(result, 0, output)
+            self.assertIn('"valid": true', output)
 
 
 if __name__ == "__main__":
