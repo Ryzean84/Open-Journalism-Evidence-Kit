@@ -268,6 +268,26 @@ def _verify_signature_and_head(
     policy_id = statement["policy_id"]
     if not isinstance(policy_id, str) or not policy_id.strip() or len(policy_id) > 128:
         raise WitnessProtocolError("policy_id must be a non-empty string of at most 128 characters")
+    status = statement["consistency_status"]
+    if not isinstance(status, str) or status not in _STATUSES:
+        raise WitnessProtocolError("unsupported consistency_status")
+    previous_digest = statement["previous_statement_digest"]
+    from_size = statement["consistency_from_tree_size"]
+    proof_digest = statement["consistency_proof_digest"]
+    transition_digest = statement["key_transition_digest"]
+    if status == "first_observation":
+        if any(value is not None for value in (previous_digest, from_size, proof_digest, transition_digest)):
+            raise WitnessProtocolError("first observation contains prior-chain fields")
+    else:
+        _digest(previous_digest, "previous_statement_digest")
+        if isinstance(from_size, bool) or not isinstance(from_size, int) or from_size < 0:
+            raise WitnessProtocolError("consistency_from_tree_size must be a non-negative integer")
+        if proof_digest is not None:
+            _digest(proof_digest, "consistency_proof_digest")
+        if transition_digest is not None:
+            _digest(transition_digest, "key_transition_digest")
+    if datetime.fromisoformat(statement["observed_at"][:-1] + "+00:00") < datetime.fromisoformat(key_document["created_at"][:-1] + "+00:00"):
+        raise WitnessProtocolError("statement predates the signing key document")
     signature = statement["signature"]
     if not isinstance(signature, str) or not _HEX128.fullmatch(signature):
         raise WitnessProtocolError("signature must be 128 lowercase hexadecimal characters")
@@ -329,7 +349,14 @@ def sign_witness_statement(
             raise WitnessProtocolError("key transition supplied when the key did not change")
 
         if consistency_proof is None:
-            status = "unavailable"
+            rollback_or_fork = (
+                tree_head["tree_size"] < previous_tree_head["tree_size"]
+                or (
+                    tree_head["tree_size"] == previous_tree_head["tree_size"]
+                    and tree_head["root_hash"] != previous_tree_head["root_hash"]
+                )
+            )
+            status = "failed" if rollback_or_fork else "unavailable"
         else:
             proof_digest = consistency_proof_digest(consistency_proof)
             status = "verified" if verify_consistency_proof_document(
@@ -424,10 +451,24 @@ def verify_witness_statement(
         if status == "unavailable":
             if consistency_proof is not None or statement["consistency_proof_digest"] is not None:
                 raise WitnessProtocolError("unavailable status must not claim a proof artifact")
+            if (tree_head["tree_size"] < prior_size
+                    or (tree_head["tree_size"] == prior_size
+                        and tree_head["root_hash"] != previous_tree_head["root_hash"])):
+                raise WitnessProtocolError("rollback or same-size root conflict cannot be labeled unavailable")
+            continuity_verified = False
+        elif consistency_proof is None:
+            if statement["consistency_proof_digest"] is not None:
+                raise WitnessProtocolError("missing consistency proof does not match its digest field")
+            if status != "failed" or not (
+                tree_head["tree_size"] < prior_size
+                or (tree_head["tree_size"] == prior_size
+                    and tree_head["root_hash"] != previous_tree_head["root_hash"])
+            ):
+                raise WitnessProtocolError("failed status without a proof requires a rollback or same-size root conflict")
             continuity_verified = False
         else:
             if not isinstance(consistency_proof, dict):
-                raise WitnessProtocolError("failed or verified status requires a consistency proof document")
+                raise WitnessProtocolError("consistency proof must be a JSON object")
             supplied_proof_digest = consistency_proof_digest(consistency_proof)
             if statement["consistency_proof_digest"] != supplied_proof_digest:
                 raise WitnessProtocolError("consistency_proof_digest does not match supplied proof")
