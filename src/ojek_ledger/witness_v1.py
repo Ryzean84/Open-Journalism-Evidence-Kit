@@ -326,6 +326,8 @@ def sign_witness_statement(
     if not verify_tree_head(tree_head):
         raise WitnessProtocolError("current tree head is invalid")
     _timestamp(observed_at, "observed_at")
+    if datetime.fromisoformat(observed_at[:-1] + "+00:00") < datetime.fromisoformat(key_document["created_at"][:-1] + "+00:00"):
+        raise WitnessProtocolError("observation predates the current signing key")
     if not isinstance(policy_id, str) or not policy_id.strip() or len(policy_id) > 128:
         raise WitnessProtocolError("policy_id must be a non-empty string of at most 128 characters")
     private = _load_private_key(private_key)
