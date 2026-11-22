@@ -9,7 +9,7 @@ import hashlib
 import json
 import re
 from datetime import datetime
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 PROTOCOL = "ojek-transparency-log-v0.2"
 ENTRY_PROTOCOL = PROTOCOL
