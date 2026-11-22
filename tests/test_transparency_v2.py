@@ -131,6 +131,10 @@ class TransparencyV2Tests(unittest.TestCase):
         new_head = build_tree_head("newsroom.example/log-1", new_entries, "2026-11-22T00:01:00Z")
         self.assertTrue(verify_tree_head(old_head))
         self.assertTrue(verify_tree_head(new_head))
+        invalid_empty = build_tree_head("newsroom.example/log-1", [], "2026-11-22T00:00:00Z")
+        invalid_empty["root_hash"] = "0" * 64
+        invalid_empty["tree_head_digest"] = "0" * 64
+        self.assertFalse(verify_tree_head(invalid_empty))
         proof = generate_consistency_proof_v2(new_entries, 4)
         document = build_consistency_proof_document("newsroom.example/log-1", old_head, new_head, proof)
         self.assertEqual(document["protocol"], PROOF_PROTOCOL)
@@ -185,6 +189,8 @@ class TransparencyV2Tests(unittest.TestCase):
                 "log-v2", "head", str(all_entries), "--log-id", "newsroom.example/log-cli",
                 "--issued-at", "2026-11-22T00:01:00Z", "--output", str(new_head),
             ])
+            self.assertEqual(result, 0, output)
+            result, output = invoke(["log-v2", "verify-head", str(new_head)])
             self.assertEqual(result, 0, output)
             result, output = invoke([
                 "log-v2", "consistency-proof", str(all_entries), str(old_head),
