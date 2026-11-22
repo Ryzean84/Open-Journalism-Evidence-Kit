@@ -5,7 +5,7 @@ The JSON Schemas in this directory define machine-readable structural contracts.
 | Schema | Protocol object | Primary verifier |
 |---|---|---|
 | [source-observation.v0.1](../schemas/source-observation.v0.1.schema.json) | Local source observation metadata | Local ledger validation |
-| [transparency-log-entry.v0.2](../schemas/transparency-log-entry.v0.2.schema.json) | Ordered v0.2 log entry | `validate_log_entry` |
+| [transparency-log-entry.v0.2](../schemas/transparency-log-entry.v0.2.schema.json) | Ordered v0.2 log entry, including references to local ledger events | `validate_log_entry` |
 | [transparency-tree-head.v0.2](../schemas/transparency-tree-head.v0.2.schema.json) | Unsigned v0.2 tree head | `verify_tree_head` |
 | [transparency-consistency-proof.v0.2](../schemas/transparency-consistency-proof.v0.2.schema.json) | Proof between two tree heads | `verify_consistency_proof_document` |
 
